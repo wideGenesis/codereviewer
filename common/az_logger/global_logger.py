@@ -59,11 +59,9 @@ class CustomLogger(metaclass=SingletonMeta):
             self.initialized = True
 
     def _get_log_level(self, log_level: str) -> int:
-        """Помощник для получения уровня логирования."""
         return getattr(logging, log_level.upper(), logging.INFO)
 
     def _get_formatter(self) -> logging.Formatter:
-        """Возвращает форматтер для логирования сообщений."""
         return logging.Formatter(
             "[%(levelname)-3s]-"
             "[FILE: %(filename)-3s]-"
@@ -93,13 +91,10 @@ class CustomLogger(metaclass=SingletonMeta):
     #     return custom_dimensions
 
     def _log_async(self, level: str, msg: str, kwargs):
-        """Асинхронная функция для логирования."""
         log_level = self._get_log_level(level)
 
-        # Собираем информацию о вызове (файл, функция, строка)
         fn, lno, func, sinfo = self.logger.findCaller(stack_info=False)
 
-        # Создание записи лога с корректными значениями
         record = self.logger.makeRecord(
             self.logger.name, log_level, fn, lno, msg, args=None, exc_info=None, func=func
         )
@@ -107,15 +102,13 @@ class CustomLogger(metaclass=SingletonMeta):
         self.logger.handle(record)
 
     def log(self, level: str, msg: str, exc_info=False, **kwargs):
-        """Логирование сообщения с опцией передачи информации об исключении."""
         log_level = self._get_log_level(level)
 
         # Создание записи лога с корректными значениями
         self.logger.log(log_level, msg, exc_info=exc_info, **kwargs)
 
     def shutdown(self):
-        """Закрытие логгера при завершении работы программы."""
-        pass  # В синхронной версии нет пула потоков, но можем оставить для совместимости
+        pass
 
     # def log(self, level: str, msg: str, **kwargs):
     #     """Логирование сообщения с использованием асинхронного вызова."""
@@ -143,25 +136,3 @@ class CustomLogger(metaclass=SingletonMeta):
 
     def critical(self, msg: str, **kwargs):
         self.log("critical", msg, **kwargs)
-
-
-#
-#
-#
-# from dotenv import load_dotenv
-#
-# load_dotenv(dotenv_path='common_lib/settings/.env')
-# conn_str = os.getenv('APPLICATIONINSIGHTS_CONNECTION_STRING')
-#
-# # Example usage:
-# logger = CustomLogger(azure_connection_string=conn_str, log_level_local="debug", log_level_azure="info")
-#
-# try:
-#     # Ваш основной код, где могут возникнуть ошибки
-#     logger.info("This is an info log.")
-#     # Здесь может быть бизнес-логика
-#     result = 1 / 0  # Искусственно вызванная ошибка для примера
-# except Exception as e:
-#     # Логгируем ошибку в случае исключения
-#     logger.error(f"This is an error log. {e}")
-# # #

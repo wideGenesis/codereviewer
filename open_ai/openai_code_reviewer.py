@@ -11,14 +11,7 @@ load_dotenv()
 
 
 def get_py_files(directory: str, current_script: str) -> List[str]:
-    """
-    Получает список всех .py файлов в указанной директории и её поддиректориях,
-    исключая папки venv и .venv.
 
-    :param directory: Путь к директории
-    :param current_script: Имя текущего скрипта
-    :return: Список путей к .py файлам
-    """
     all_files = glob.glob(os.path.join(directory, '**', '*.py'), recursive=True)
     excluded_dirs = {'venv', '.venv', 'prompt', 'exclude'}
     return [

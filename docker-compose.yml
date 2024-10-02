@@ -1,0 +1,151 @@
+services:
+  n8n:
+      image: n8nio/n8n:latest
+      restart: always
+      ports:
+        - "5678:5678"
+      environment:
+        - N8N_BASIC_AUTH_ACTIVE=true
+        - N8N_BASIC_AUTH_USER=admin
+        - N8N_BASIC_AUTH_PASSWORD=General2035+
+        - GENERIC_TIMEZONE=Europe/Moscow
+        - N8N_SECURE_COOKIE=false  # TODO На продакшен обязательно удалить
+
+      volumes:
+        - n8n_data:/home/node/.n8n
+#
+#  mysql:
+#    image: bitnami/mysql:latest
+#    container_name: bitnami_mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=General2035+
+#      - MYSQL_DATABASE=codereviewer
+#      - MYSQL_USER=general
+#      - MYSQL_PASSWORD=General2035
+#      - MYSQL_INNODB_BUFFER_POOL_SIZE=256M
+#      - MYSQL_INNODB_LOG_FILE_SIZE=64M
+#      - MYSQL_INNODB_LOG_BUFFER_SIZE=32M
+#      - MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT=2
+#      - MYSQL_MAX_CONNECTIONS=100
+#      - MYSQL_THREAD_CACHE_SIZE=25
+#      - MYSQL_QUERY_CACHE_SIZE=32M
+#      - MYSQL_TMP_TABLE_SIZE=32M
+#      - MYSQL_TABLE_OPEN_CACHE=200
+#      - MYSQL_INNODB_THREAD_CONCURRENCY=4
+#    volumes:
+#      - mysql_data:/bitnami/mysql
+#    networks:
+#      - app-network
+#    ports:
+#      - "3306:3306"
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 1g       # Ограничение использования ОЗУ до 1 ГБ
+#          cpus: "0.5"      # Ограничение на использование 50% одного CPU (полпроцесса)
+#
+#  redisinsight:
+#      image: redis/redisinsight:latest
+#      container_name: redisinsight
+#      environment:
+#        - RI_HOST=0.0.0.0  # Открыть RedisInsight для доступа с любого хоста
+#        - RI_APP_PORT=5540  # Порт для RedisInsight
+#      networks:
+#        - app-network
+#      ports:
+#        - "5540:5540"
+#      restart: unless-stopped
+#
+#  redis-master:
+#    image: redis/redis-stack-server
+#    container_name: redis-master
+#    mem_limit: 1024m  # Максимально допустимый объем памяти
+#    mem_reservation: 256m  # Минимально гарантируемый объем памяти
+#    command:
+#      [
+#        "redis-stack-server",
+#        "/etc/redis.conf",
+#        "--maxmemory", "1024mb",
+#        "--maxmemory-policy", "allkeys-lru",
+#        "--protected-mode", "no"
+#      ]
+#    volumes:
+#      - 'redis_data:/redis/data'
+#    networks:
+#      - app-network
+#    ports:
+#      - "6379:6379"
+#    environment:
+#      - REDIS_REPLICATION_MODE=master
+#      - ALLOW_EMPTY_PASSWORD=yes
+#    restart: always
+#    privileged: true
+#
+#  redis-slave:
+#    image: redis/redis-stack:latest
+#    container_name: redis-slave
+#    mem_limit: 1024m
+#    mem_reservation: 256m
+#    command: [ "redis-stack-server", "/etc/redis.conf", "--maxmemory", "1024mb", "--maxmemory-policy", "allkeys-lru", "--protected-mode", "no" ]
+#    networks:
+#      - app-network
+#    environment:
+#      - REDIS_REPLICATION_MODE=slave
+#      - REDIS_MASTER_HOST=redis-master
+#      - ALLOW_EMPTY_PASSWORD=yes
+#
+#  redis-sentinel:  # https://github.com/bitnami/containers/tree/main/bitnami/redis-sentinel#configuration
+#    image: redis:latest
+#    container_name: redis-sentinel
+#    command: redis-sentinel /etc/sentinel.conf
+#    volumes:
+#      - ./sentinel.conf:/etc/sentinel.conf
+#    networks:
+#      - app-network
+#    ports:
+#      - "26379:26379"
+#
+#  redis-exporter:
+#    image: oliver006/redis_exporter:latest
+#    container_name: redis-exporter
+#    environment:
+#      - REDIS_ADDR=redis-master:6379
+#    networks:
+#      - app-network
+#    ports:
+#      - "9121:9121"
+#
+#  prometheus:
+#    image: prom/prometheus:latest
+#    container_name: prometheus
+#    volumes:
+#      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#    networks:
+#      - app-network
+#    ports:
+#      - "9090:9090"
+#
+#  grafana:
+#    image: grafana/grafana:latest
+#    container_name: grafana
+#    networks:
+#      - app-network
+#    ports:
+#      - "3000:3000"
+#    environment:
+#      - GF_SECURITY_ADMIN_PASSWORD=admin  # Пароль по умолчанию
+#    volumes:
+#      - grafana-storage:/var/lib/grafana
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+#  redis_data:
+#  grafana-storage:
+#  mysql_data:
+#    driver: local
+  n8n_data:
+    driver: local
+

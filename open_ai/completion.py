@@ -3,10 +3,7 @@ from openai.types.chat import ChatCompletion
 from tenacity import retry, stop_after_attempt, retry_if_exception_type
 from openai import AsyncOpenAI, APIStatusError, OpenAIError
 
-from common_lib.schemas.json.schema_completion_vacancy import json_schema_completion_vacancy_output
 
-
-# Настраиваем пользовательскую логику ожидания
 def custom_wait(e):
     if isinstance(e, APIStatusError):
         retry_after = e.response.headers.get("Retry-After")
@@ -66,7 +63,6 @@ async def create_completion(
         completion_params["response_format"] = response_format
 
     try:
-        # Вызываем метод создания завершения
         completion = await openai_client.chat.completions.create(**completion_params)
 
         content = completion.choices[0].message.content

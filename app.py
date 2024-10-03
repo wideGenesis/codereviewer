@@ -1,6 +1,6 @@
 from common.az_logger.global_logger import CustomLogger
-from git_hub.client import get_pull_request_commit_files, list_pull_requests
-from git_local.git_local import local_code_reviewer
+from git_hub.gh_client import get_pull_request_commit_files, list_pull_requests, commit_code_reviewer
+from git_local.local_client import local_code_reviewer
 import logging
 import os
 
@@ -41,7 +41,16 @@ def run_github_code_reviewer():
         print(e)
         exit(1)
     commit_files = get_pull_request_commit_files(repo_name, pr_number)
-
+    commit_code_reviewer(
+        repo_name,
+        pr_number,
+        commit_files,
+        logger,
+        completion_client,
+        SYSTEM["code_review_assistant"],
+        USER["code_review"],
+        "gpt-4o-mini"
+    )
 
 if __name__ == '__main__':
     run_local_code_reviewer()

@@ -1,0 +1,494 @@
+{
+  "name": "ChatGPT Automatic Code Review in Gitlab MR",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Edit your own prompt ⬇️\n"
+      },
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "5369d709-a256-477c-91a3-03717986aa7e"
+    },
+    {
+      "parameters": {
+        "content": "## Filter comments and customize your trigger words ⬇️"
+      },
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -540,
+        280
+      ],
+      "typeVersion": 1,
+      "id": "39b2bea6-49fe-4611-a90c-cb45e06cc0e7"
+    },
+    {
+      "parameters": {
+        "content": "## Replace your gitlab URL and token ⬇️"
+      },
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        260
+      ],
+      "typeVersion": 1,
+      "id": "6a420a41-eaf1-409f-ba13-b6915bbe0c02"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e21095c0-1876-4cd9-9e92-a2eac737f03e",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -700,
+        460
+      ],
+      "webhookId": "6cfd2f23-6f45-47d4-9fe0-8f6f1c05829a",
+      "typeVersion": 1.1,
+      "id": "667ea3b6-033f-4253-854a-b612d8656b4a"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nvar diff = $input.item.json.gitDiff\n\nlet lines = diff.trimEnd().split('\\n');\n\nlet originalCode = '';\nlet newCode = '';\n\nlines.forEach(line => {\n  console.log(line)\n    if (line.startsWith('-')) {\n        originalCode += line + \"\\n\";\n    } else if (line.startsWith('+')) {\n        newCode += line + \"\\n\";\n    } else {\n        originalCode += line + \"\\n\";\n        newCode += line + \"\\n\";\n    }\n});\n\nreturn {\n  originalCode:originalCode,\n  newCode:newCode\n};\n\n"
+      },
+      "name": "Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        240
+      ],
+      "typeVersion": 2,
+      "id": "3d3f01da-5b07-472e-83b2-645d0481698d"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "changes",
+        "options": {}
+      },
+      "name": "Split Out1",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -20,
+        440
+      ],
+      "typeVersion": 1,
+      "id": "a7b0ab15-d95e-4037-9015-23896184280e"
+    },
+    {
+      "parameters": {
+        "options": {
+          "baseURL": ""
+        }
+      },
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        740,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "24702880-1aeb-4026-8122-27e9cb370f29",
+      "credentials": {
+        "openAiApi": {
+          "id": "Ui2nXjg6qluMmykN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://gitlab.com/api/v4/projects/{{ $json[\"body\"][\"project_id\"] }}/merge_requests/{{ $json[\"body\"][\"merge_request\"][\"iid\"] }}/changes",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "PRIVATE-TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Get Changes1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -220,
+        440
+      ],
+      "typeVersion": 4.1,
+      "id": "adfdcafb-2620-4a6f-b87f-fdffdc3492da"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.renamed_file }}",
+              "rightValue": ""
+            },
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.deleted_file }}",
+              "rightValue": ""
+            },
+            {
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              },
+              "leftValue": "={{ $json.diff }}",
+              "rightValue": "@@"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Skip File Change1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        180,
+        440
+      ],
+      "typeVersion": 2,
+      "id": "42fc6068-922d-4f9f-90f3-c7bfc41b3785"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const parseLastDiff = (gitDiff) => {\n  gitDiff = gitDiff.replace(/\\n\\\\ No newline at end of file/, '')\n  \n  const diffList = gitDiff.trimEnd().split('\\n').reverse();\n  const lastLineFirstChar = diffList?.[0]?.[0];\n  const lastDiff =\n    diffList.find((item) => {\n      return /^@@ \\-\\d+,\\d+ \\+\\d+,\\d+ @@/g.test(item);\n    }) || '';\n\n  const [lastOldLineCount, lastNewLineCount] = lastDiff\n    .replace(/@@ \\-(\\d+),(\\d+) \\+(\\d+),(\\d+) @@.*/g, ($0, $1, $2, $3, $4) => {\n      return `${+$1 + +$2},${+$3 + +$4}`;\n    })\n    .split(',');\n  \n  if (!/^\\d+$/.test(lastOldLineCount) || !/^\\d+$/.test(lastNewLineCount)) {\n    return {\n      lastOldLine: -1,\n      lastNewLine: -1,\n      gitDiff,\n    };\n  }\n\n\n  const lastOldLine = lastLineFirstChar === '+' ? null : (parseInt(lastOldLineCount) || 0) - 1;\n  const lastNewLine = lastLineFirstChar === '-' ? null : (parseInt(lastNewLineCount) || 0) - 1;\n\n  return {\n    lastOldLine,\n    lastNewLine,\n    gitDiff,\n  };\n};\n\nreturn parseLastDiff($input.item.json.diff)\n"
+      },
+      "name": "Parse Last Diff Line1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        380,
+        240
+      ],
+      "typeVersion": 2,
+      "id": "ebb74fef-a98b-4d2c-96f9-935cf6e6c7bc"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://gitlab.com/api/v4/projects/{{ $('Webhook').item.json[\"body\"][\"project_id\"] }}/merge_requests/{{ $('Webhook').item.json[\"body\"][\"merge_request\"][\"iid\"] }}/discussions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "PRIVATE-TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={{ $('Basic LLM Chain1').item.json[\"text\"] }}"
+            },
+            {
+              "name": "position[position_type]",
+              "value": "text"
+            },
+            {
+              "name": "position[old_path]",
+              "value": "={{ $('Split Out1').item.json.old_path }}"
+            },
+            {
+              "name": "position[new_path]",
+              "value": "={{ $('Split Out1').item.json.new_path }}"
+            },
+            {
+              "name": "position[start_sha]",
+              "value": "={{ $('Get Changes1').item.json.diff_refs.start_sha }}"
+            },
+            {
+              "name": "position[head_sha]",
+              "value": "={{ $('Get Changes1').item.json.diff_refs.head_sha }}"
+            },
+            {
+              "name": "position[base_sha]",
+              "value": "={{ $('Get Changes1').item.json.diff_refs.base_sha }}"
+            },
+            {
+              "name": "position[new_line]",
+              "value": "={{ $('Parse Last Diff Line1').item.json.lastNewLine || ''  }}"
+            },
+            {
+              "name": "position[old_line]",
+              "value": "={{ $('Parse Last Diff Line1').item.json.lastOldLine || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Post Discussions1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        420
+      ],
+      "typeVersion": 4.1,
+      "id": "663a8429-e81e-4f0c-ab1d-bfcc2dbe8177"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.body.object_attributes.note }}",
+              "rightValue": "+0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Need Review1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -480,
+        460
+      ],
+      "typeVersion": 2,
+      "id": "77b671b5-2b2b-4eb9-8dc7-4831a050826c"
+    },
+    {
+      "parameters": {
+        "content": "## Replace your gitlab URL and token ⬇️"
+      },
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "342bf7da-e594-4180-a5e6-ad0dbbc6cbbb"
+    },
+    {
+      "parameters": {
+        "operation": "compress",
+        "binaryPropertyName": "=data",
+        "fileName": "last_pull_request"
+      },
+      "id": "fca7b46b-755a-4faa-a62a-c0807d54fae9",
+      "name": "Compression",
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        1060,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "additionalFields": {}
+      },
+      "id": "91611847-b997-45c4-a87e-a16ca7b0d5bd",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Replace your TG Key and chatID ⬇️"
+      },
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "f8ceaf9f-7668-4b9e-89ea-08dbe591a382"
+    },
+    {
+      "parameters": {
+        "prompt": "=File path：{{ $('Skip File Change1').item.json.new_path }}\n\n```Original code\n {{ $json.originalCode }}\n```\nchange to\n```New code\n {{ $json.newCode }}\n```\nPlease review the code changes in this section:",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "# Overview:\n You are a senior programming expert Bot, responsible for reviewing code changes and providing review recommendations.\n At the beginning of the suggestion, it is necessary to clearly make a decision to \"reject\" or \"accept\" the code change, and rate the change in the format \"Change Score: Actual Score\", with a score range of 0-100 points.\n Then, point out the existing problems in concise language and a stern tone.\n If you feel it is necessary, you can directly provide the modified content.\n Your review proposal must use rigorous Markdown format."
+            }
+          ]
+        }
+      },
+      "name": "Basic LLM Chain1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        720,
+        420
+      ],
+      "typeVersion": 1.2,
+      "id": "f6c45bca-1dbd-4660-ae47-65f44d5cb3cc"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Need Review1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Skip File Change1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Changes1": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Review1": {
+      "main": [
+        [
+          {
+            "node": "Get Changes1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip File Change1": {
+      "main": [
+        [
+          {
+            "node": "Parse Last Diff Line1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Last Diff Line1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compression": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1": {
+      "main": [
+        [
+          {
+            "node": "Post Discussions1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Compression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "a6edb8dc-94f8-4e05-8fba-e636d52cb1ec",
+  "meta": {
+    "templateId": "2167",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "21de987a7f1771985b3b513454ce01e393c691547663bc78a9375904a19ba9b8"
+  },
+  "id": "Dy7eZiIQvCEQFw9V",
+  "tags": []
+}

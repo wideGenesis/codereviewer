@@ -10,6 +10,7 @@ services:
         - N8N_BASIC_AUTH_PASSWORD=General2035+
         - GENERIC_TIMEZONE=Europe/Moscow
         - N8N_SECURE_COOKIE=false  # TODO На продакшен обязательно удалить
+        - N8N_TUNNEL_SUBDOMAIN=mysubdomain2005
 
       volumes:
         - n8n_data:/home/node/.n8n

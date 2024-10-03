@@ -1,9 +1,12 @@
 import os
 import logging
+from typing import Union
 
 from dotenv import load_dotenv
 from github import Github
+from openai import OpenAI, AsyncOpenAI
 
+from common.az_logger.global_logger import CustomLogger
 from open_ai.completion import create_completion
 
 logging.basicConfig(level=logging.INFO)
@@ -48,7 +51,9 @@ def list_pull_requests(repo_name: str):
             logging.info(f"URL: {pr.html_url}")
             logging.info("-" * 50)
             pr_list.append(pr)
-
+        if len(pr_list) == 0:
+            logging.info("No open pull requests found. Exit")
+            exit(0)
         return pr_list
 
     except Exception as e:
@@ -118,44 +123,34 @@ def get_pull_request_commit_files(repo_name: str, pr_number: int):
         logging.error(f"Error fetching commit files for PR #{pr_number}: {e}")
         return None
 
-def local_code_reviewer(
-        repo_path: str,
-        branch_name: str,
-        output_file: str,
+def git_hub_code_reviewer(
+        repo_name: str,
         logger: Union[logging.Logger, CustomLogger],
         completion_client: Union[OpenAI, AsyncOpenAI],
         system_prompt: str,
         user_prompt:  str,
         gpt_model: str
 ):
-    """
-    Основная функция агента. Получает изменения между веткой и main,
-    анализирует их с помощью GPT и сохраняет результат.
 
-    Args:
-    - repo_path: Путь к локальному репозиторию.
-    - branch_name: Имя ветки для анализа.
-    - output_file: Путь к файлу для сохранения результатов.
-    """
-    logger.info(f"Starting code review for branch {branch_name} in repo {repo_path}")
+    logger.info(f"Starting code review for repo {repo_name}")
+    pr_list = list_pull_requests(repo_name)
+    try:
+        pr_number = int(input("Enter number of PR:\n"))
+    except Exception as e:
+        logger.exception(e)
+        exit(1)
+    try:
+        get_pull_request_commit_files(repo_name, pr_number)
+    except Exception as e:
+        logger.exception(e)
 
-    # Получаем git diff
-    diff_data = get_git_diff(repo_path, branch_name, logger)
-    if not diff_data:
-        logger.error("No changes found or error occurred while getting the diff.")
-        return
-
-    # Разделяем изменения на файлы и передаем их для анализа GPT
-    comments = ""
-    for file_diff in diff_data.split('diff --git'):
-        if file_diff.strip():  # Игнорируем пустые строки
-            file_comments = create_completion(
-                openai_client=completion_client,
-                system_prompt=system_prompt,
-                user_prompt=user_prompt.format(file_diff),
-                gpt_model=gpt_model
-            )
-            comments += f"Changes in file:\n{file_diff[:100]}\n\n{file_comments}\n\n"
-
-    # Сохраняем комментарии в файл
-    save_review_comments(comments, output_file, logger)
+    # file_comments = create_completion(
+    #     openai_client=completion_client,
+    #     system_prompt=system_prompt,
+    #     user_prompt=user_prompt.format(file_diff),
+    #     gpt_model=gpt_model
+    # )
+    # comments += f"Changes in file:\n{file_diff[:100]}\n\n{file_comments}\n\n"
+    #
+    # # Сохраняем комментарии в файл
+    # save_review_comments(comments, output_file, logger)

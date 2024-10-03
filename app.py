@@ -1,5 +1,5 @@
 from common.az_logger.global_logger import CustomLogger
-from git_hub.gh_client import get_pull_request_commit_files, list_pull_requests, commit_code_reviewer
+from git_hub.gh_client import get_pull_request_commit_files, list_pull_requests, git_hub_code_reviewer
 from git_local.local_client import local_code_reviewer
 import logging
 import os
@@ -34,23 +34,17 @@ def run_local_code_reviewer():
 
 def run_github_code_reviewer():
     repo_name = 'wideGenesis/codereviewer'
-    pr_list = list_pull_requests(repo_name)
-    try:
-        pr_number = int(input("Enter number of PR:\n"))
-    except Exception as e:
-        print(e)
-        exit(1)
-    commit_files = get_pull_request_commit_files(repo_name, pr_number)
-    commit_code_reviewer(
+    git_hub_code_reviewer(
         repo_name,
-        pr_number,
-        commit_files,
         logger,
         completion_client,
         SYSTEM["code_review_assistant"],
         USER["code_review"],
         "gpt-4o-mini"
+
     )
 
+
 if __name__ == '__main__':
-    run_local_code_reviewer()
+    # run_local_code_reviewer()
+    run_github_code_reviewer()

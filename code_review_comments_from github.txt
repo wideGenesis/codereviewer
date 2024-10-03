@@ -1,0 +1,98 @@
+### Review for app.py:
+
+Your code changes appear to enhance the structure and readability of the code by reducing duplication and centralizing configuration. Here are some suggestions for further improvements:
+
+1. **Import Order and Cleanliness**:
+    - Organize your import statements according to the PEP 8 guidelines: standard libraries first, followed by third-party libraries, then local application imports. This improves readability.
+    - Consider removing any unused imports to keep the code clean.
+
+2. **Environment Variables Handling**:
+    - It would be beneficial to handle cases where the `OPENAI_API_KEY` environment variable might not be set, potentially raising an error or logging a warning. Example:
+        ```python
+        api_key = os.getenv("OPENAI_API_KEY")
+        if api_key is None:
+            logger.error("OPENAI_API_KEY is not set.")
+            return
+        completion_client = OpenAI(api_key=api_key)
+        ```
+
+3. **Magic Strings**:
+    - You have "hardcoded" constants like `"C:\\Users\\Genesis\\PycharmProjects\\codereviewer"` and `model_name`. Consider using an external configuration file or environment variables for these so that your code is more flexible and adaptable to different environments.
+
+4. **Docstrings**:
+    - Your functions have docstrings that describe their purpose, which is good practice. 
+    - Consider using a more specific format by specifying the parameters and return types. For example:
+        ```python
+        def run_local_code_reviewer() -> None:
+            """Executes a local code review for the specified repository, branch, and output file.
+
+            Returns:
+                None
+            """
+        ```
+
+5. **Code Maintainability**:
+    - Consider extracting constants into a separate configuration class or module, especially if you foresee using other configurations in the future.
+
+6. **Function Naming**:
+    - Ensure that the function names clearly describe their actions. For example, `run_local_code_reviewer` might be clearer as `execute_local_code_review` to imply action.
+
+7. **Error Handling**:
+    - Implement try-except blocks around calls that can fail (such as client initializations and external service calls) to handle exceptions more gracefully.
+
+8. **Main Guard**:
+    - If you add more functionality, consider organizing the code that follows the `if __name__ == '__main__':` check into functions or classes to improve modularity.
+
+Here's a revised version incorporating some of these suggestions:
+
+```python
+import logging
+import os
+from common.az_logger.global_logger import CustomLogger
+from git_hub.gh_client import git_hub_code_reviewer
+from git_local.local_client import local_code_reviewer
+from openai import OpenAI
+from open_ai.prompt.llm_prompt import SYSTEM, USER
+
+# Initialize the logger
+AZURE_LOGGER_NAMES = ['azure.core.pipeline.policies.http_logging_policy', 'azure.storage']
+for logger_name in AZURE_LOGGER_NAMES:
+    logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+# Constants
+REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"  # Consider externalizing
+BRANCH_NAME = "rel_01"  # Consider externalizing
+OUTPUT_FILE = "code_review_comments.txt"  # Consider externalizing
+REPO_NAME = 'wideGenesis/codereviewer'  # Consider externalizing
+MODEL_NAME = "gpt-4o-mini"
+REVIEW_ASSISTANT = SYSTEM["code_review_assistant"]
+USER_PROMPT = USER["code_review"]
+
+# Logger Setup
+logger = CustomLogger(azure_connection_string=None, log_level_local="debug", log_level_azure="debug")
+
+# OpenAI Client Initialization
+api_key = os.getenv("OPENAI_API_KEY")
+if api_key is None:
+    logger.error("OPENAI_API_KEY is not set.")
+else:
+    completion_client = OpenAI(api_key=api_key)
+
+def get_review_params():
+    return logger, completion_client, REVIEW_ASSISTANT, USER_PROMPT, MODEL_NAME
+
+def run_local_code_reviewer() -> None:
+    """Executes a local code review for the specified repository, branch, and output file."""
+    local_code_reviewer(REPO_PATH, BRANCH_NAME, OUTPUT_FILE, *get_review_params())
+
+def run_github_code_reviewer() -> None:
+    """Executes GitHub code review for the specified repository."""
+    git_hub_code_reviewer(REPO_NAME, *get_review_params())
+
+if __name__ == '__main__':
+    run_local_code_reviewer()
+    run_github_code_reviewer()
+```
+
+These changes enhance readability, improve robustness, and provide better maintainability.
+

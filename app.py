@@ -18,7 +18,8 @@ logger = CustomLogger(azure_connection_string=None, log_level_local="debug", log
 # Константы
 REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"
 BRANCH_NAME = "rel_01"
-OUTPUT_FILE = "code_review_comments.txt"
+OUTPUT_FILE_FOR_LOCAL = "code_review_comments.txt"
+OUTPUT_FILE_FOR_GITHUB = "code_review_comments_from github.txt"
 REPO_NAME = 'wideGenesis/codereviewer'
 
 MODEL_NAME = "gpt-4o-mini"
@@ -35,7 +36,7 @@ def run_local_code_reviewer():
     Выполняет локальный код-ревью для указанного репозитория, ветки и выходного файла.
     :return: None
     """
-    local_code_reviewer(REPO_PATH, BRANCH_NAME, OUTPUT_FILE, *get_review_params())
+    local_code_reviewer(REPO_PATH, BRANCH_NAME, OUTPUT_FILE_FOR_LOCAL, *get_review_params())
 
 
 def run_github_code_reviewer():
@@ -43,7 +44,7 @@ def run_github_code_reviewer():
     Выполняет GitHub код-ревью для указанного репозитория.
     :return: None
     """
-    git_hub_code_reviewer(REPO_NAME, *get_review_params())
+    git_hub_code_reviewer(REPO_NAME, OUTPUT_FILE_FOR_GITHUB, *get_review_params())
 
 
 if __name__ == '__main__':

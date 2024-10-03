@@ -5,11 +5,6 @@ from openai import AsyncOpenAI
 from typing import List, Union
 
 
-from common_lib.prompt.system_prompts import PROMPTS
-
-load_dotenv()
-
-
 def get_py_files(directory: str, current_script: str) -> List[str]:
 
     all_files = glob.glob(os.path.join(directory, '**', '*.py'), recursive=True)
@@ -21,8 +16,6 @@ def get_py_files(directory: str, current_script: str) -> List[str]:
            and os.path.basename(f) != '__init__.py'
 
     ]
-
-
 
 
 def ask_user(prompt: str) -> bool:

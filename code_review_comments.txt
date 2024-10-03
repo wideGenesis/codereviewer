@@ -1,1046 +1,574 @@
 Changes in file:
- a/.gitignore b/.gitignore
-index 82f9275..17137b2 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -125 +
+ a/README.md b/README.md
+new file mode 100644
+index 0000000..a2bc630
+--- /dev/null
++++ b/README.md
+@
 
-The code change you've provided reflects a modification to the `.gitignore` file. Here’s a review of the modification and suggestions for improvements:
+The README.md you've added is quite good and provides a solid overview of your CodeReviewer tool. Here are some suggestions for improvements:
 
-### Review of Changes
-1. **File Path Change**: The change involves ignoring a `.env` file located at the root level of the project to now ignore `settings/.env`. This is a good change if your intention is to specifically ignore only the `.env` file in the `settings` directory and not any `.env` file that might exist elsewhere in the project.
+1. **Add a License Section**: It's important to clarify the licensing of your code. Add a section that states under which license your project is released.
 
-### Suggestions for Improvements
-1. **Clarify Intent**: If there are multiple `.env` files in different directories, consider including a comment in the `.gitignore` file explaining why you are ignoring `settings/.env`. This will help other developers understand the purpose behind this change.
+   ```markdown
+   ## License
+   This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+   ```
 
-    ```plaintext
-    # Ignore environment configuration files
-    settings/.env
-    ```
+2. **Expand on Usage**: While you've included steps for usage, it would be helpful to provide an example of the command to run the tool and what the expected output might look like. This will help users understand how to use it effectively.
 
-2. **Evaluate Other Environments**: If there are other environment configuration files in the project, you may want to ensure they are also covered in the `.gitignore` file. For example, if there are `.env` files in other directories, you could add them as well.
+   ```markdown
+   ## Usage
+   ...
+   2. **Run the CodeReviewer**: You can run the review process by using the following command:
+   ```bash
+   python codereviewer.py --repo path/to/your/repo --branch branch-name
+   ```
+   3. **Generate Report**: The tool will generate a detailed report with suggestions and comments based on the AI's analysis, outputting it to a file named `review_report.md`.
+   ```
 
-3. **Documentation**: If this project is shared among multiple developers, consider adding information about required environment variables and best practices for managing and using `.env` files in the project's README or a dedicated documentation site. This will help facilitate the setup process for new developers.
+3. **Provide Contributing Guidelines**: If you're looking for contributions to your project, consider adding a section on how developers can contribute, along with coding standards or any specific requirements.
 
-4. **Wildcard Consideration**: If you intend to ignore any `.env` file located in any subdirectory (not just `settings`), consider using a wildcard pattern:
+   ```markdown
+   ## Contributing
+   Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+   ```
 
-    ```plaintext
-    **/*.env
-    ```
+4. **Add a Contact or Support Section**: If users have questions or issues, they should know how to reach out for help or support.
 
-   This ensures that no `.env` files from any directory will be tracked by Git, which is a common practice to avoid accidentally committing sensitive information.
+   ```markdown
+   ## Support
+   For any questions, issues or feedback, please contact [support@example.com](mailto:support@example.com).
+   ```
 
-5. **Environment-Specific Ignore**: If you have specific environments (development, staging, production) where different `.env` files are used, it may be beneficial to structure your `.gitignore` to reflect this.
+5. **Format Consistency**: Ensure that the code formatting is consistent throughout the file. For example, the code snippets should contain triple backticks, and indentation should be clear.
 
-    ```plaintext
-    # Development
-    settings/dev.env
+6. **Consider Adding Badges**: Including status badges (e.g., build status, license, version, etc.) at the top can improve the professionalism of your README and provide quick insights into the current state of the project.
 
-    # Staging
-    settings/stage.env
+   ```markdown
+   ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+   ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+   ```
 
-    # Production
-    settings/prod.env
-    ```
+7. **Enhance the Installation Section**: It might be beneficial to specify if there are any prerequisites or dependencies outside of Python, especially if there are OS-specific instructions (e.g., for Windows or Linux).
 
-### Conclusion
-Your change is appropriate if it meets your current project needs. However, consider the above suggestions to enhance clarity, maintainability, and security in your project. Properly managing environment files is crucial as they often contain sensitive information.
+For example:
+   ```markdown
+   ## Installation
+   Ensure you have Python 3.8 or later and `pip` installed. 
+   You can check your Python version with:
+   ```bash
+   python --version
+   ```
+
+Incorporating these suggestions should enhance the readability, usability, and professionalism of your README file.
 
 Changes in file:
  a/app.py b/app.py
-new file mode 100644
-index 0000000..e5214af
---- /dev/null
+index 6f1093e..b9b834b 100644
+--- a/app.py
 +++ b/app.py
-@@ -0,0 +1
+@@ -1,3 +0,0 @@
+-from com
 
-The provided code is a relatively simple script that lists pull requests for a given repository and retrieves the commit files for a specific pull request based on user input. Here are some suggestions for improvements:
+The code changes you've made seem to refactor some parts of the existing `app.py` module. Here are some suggestions and improvements that could enhance the clarity, maintainability, and overall quality of the code:
 
-1. **Error Handling for Invalid PR Numbers**: The current implementation only catches generic exceptions when converting the user input to an integer. It does not handle cases where the input is not a valid PR number or when the PR number does not exist. Adding specific error handling would improve the robustness of the script.
+### 1. Organization of Imports
+- **Sort imports**: It’s generally recommended to sort imports according to PEP 8 guidelines, which suggests grouping them into standard library imports, related third-party library imports, and local application/library imports. This will increase readability.
 
-2. **Function Encapsulation**: Consider encapsulating the main logic of the script into a function, e.g., `main()`. This improves readability and maintains a clean global namespace. 
+### 2. Constants
+- **Consider using a configuration class or file**: If you're going to use many constants (like paths or API keys), consider encapsulating them in a configuration class or external configuration file (like a `.env` file) instead of hardcoding values directly in your script. This improves maintainability and allows for easier configuration changes.
 
-3. **Input Prompts**: Instead of just using a generic prompt for input, provide clearer instructions or expectations for the user regarding input (e.g., specifying what a pull request number is).
+### 3. Documentation
+- **Use docstrings consistently**: You've added docstrings for the `run_local_code_reviewer` and `run_github_code_reviewer` functions, which is excellent. Make sure to consistently add docstrings to all functions, including `get_review_params`, to describe their purpose and input/output.
 
-4. **Logging**: Instead of using `print` statements for error messages, consider using the `logging` module to provide better control over logging levels and formatting.
-
-5. **Use of Constants**: If the repo name is not going to change, it can be defined as a constant at the top of the file to make the code clearer.
-
-6. **Imports Organization**: Following PEP 8, import statements should be organized (standard library imports, third-party imports, and local application imports).
-
-Here’s a refactored version of the code that incorporates the above suggestions:
+### 4. Magic Strings
+- **Avoid magic strings**: The strings used (such as "gpt-4o-mini") could be defined as constants at the top, making it clear what they are for. This supports maintainability and reduces the risk of hardcoding errors.
 
 ```python
-import sys
-import logging
-from git_hub.client import get_pull_request_commit_files, list_pull_requests
+GPT_MODEL_NAME = "gpt-4o-mini"
+```
+
+### 5. Function Parameterization
+- **Parameterize constants**: Consider allowing more flexibility in your functions by making parameters like `REPO_PATH`, `BRANCH_NAME`, etc., configurable via function arguments with default values instead of using hardcoded constants.
+
+```python
+def run_local_code_reviewer(repo_path=REPO_PATH, branch_name=BRANCH_NAME, output_file=OUTPUT_FILE_FOR_LOCAL):
+```
+
+### 6. Refactor Repeated Code
+- **Avoid repetitive code calls**: Rather than passing the logger, completion_client, and other constants repeatedly, refactor them into a single call or class that manages the setup for your reviewing logic.
+
+### 7. Error Handling
+- **Add error handling**: Consider adding error handling for network calls or file reading/writing which might cause your reviewer to fail silently. Use try-except blocks to manage potential errors gracefully.
+
+```python
+try:
+    local_code_reviewer(repo_path, branch_name, output_file, *get_review_params())
+except Exception as e:
+    logger.error(f"Error during local code review: {str(e)}")
+```
+
+### 8. Code Clarity
+- **Improve inline comments**: While the inline comments in Russian help for clarity of intent, consider writing comments in English for teams that might not speak Russian. Alternatively, you could include comments in both languages.
+
+### Suggested Refactor Example
+Here’s how the refactored part might look based on the suggestions:
+
+```python
+import os
+from common.az_logger.global_logger import CustomLogger
+from git_hub.gh_client import git_hub_code_reviewer
+from git_local.local_client import local_code_reviewer
+
+# Logger and configuration
+logger = CustomLogger(azure_connection_string=None, log_level_local="debug", log_level_azure="debug")
 
 # Constants
+REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"
+BRANCH_NAME = "rel_01"
+OUTPUT_FILE_FOR_LOCAL = "code_review_comments.txt"
+OUTPUT_FILE_FOR_GITHUB = "code_review_comments_from_github.txt"
 REPO_NAME = 'wideGenesis/codereviewer'
+MODEL_NAME = "gpt-4o-mini"
+
+def get_review_params():
+    return logger, completion_client, SYSTEM["code_review_assistant"], USER["code_review"], MODEL_NAME
+
+def run_local_code_reviewer():
+    """
+    Executes local code review for the specified repository, branch, and output file.
+    :return: None
+    """
+    try:
+        local_code_reviewer(REPO_PATH, BRANCH_NAME, OUTPUT_FILE_FOR_LOCAL, *get_review_params())
+    except Exception as e:
+        logger.error(f"Error during local code review: {str(e)}")
+
+def run_github_code_reviewer():
+    """
+    Executes GitHub code review for the specified repository.
+    :return: None
+    """
+    try:
+        git_hub_code_reviewer(REPO_NAME, OUTPUT_FILE_FOR_GITHUB, *get_review_params())
+    except Exception as e:
+        logger.error(f"Error during GitHub code review: {str(e)}")
+```
+
+By implementing these suggestions, your code will be more robust, clearer, and easier for others (or future you) to understand and maintain.
+
+Changes in file:
+ a/code_review_comments_from github.txt b/code_review_comments_from github.txt
+new file mode 100644
+
+
+The review comments you've presented are quite comprehensive and focus on various important aspects of Python coding best practices. Below are additional suggestions and improvements to further enhance your code and the review comments:
+
+### Review Feedback
+
+1. **Import Order and Cleanliness**:
+    - In addition to organizing imports, consider using tools like `isort` to automate the sorting and formatting of import statements.
+
+2. **Environment Variables Handling**:
+    - In your logging message for the missing environment variable, consider incorporating a suggestion for how to set the variable (e.g., "Set OPENAI_API_KEY in your environment.") to be more helpful to users who might not know how to configure it.
+
+3. **Magic Strings**:
+    - If long paths or specific values cannot be externalized immediately, at least consider defining them at the top of the file and using them throughout the code to improve visibility and maintainability.
+    - In Python, you might define them as:
+      ```python
+      REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"
+      DEFAULT_BRANCH = "rel_01"
+      ```
+
+4. **Docstrings**:
+    - Consider including more detailed explanations or usage examples in the docstrings for complex functions.
+
+5. **Code Maintainability**:
+    - If there is repeated logic (e.g., logger initialization), you may want to wrap those processes in a helper function for better reusability and clarity.
+
+6. **Function Naming**:
+    - The naming of actions is crucial. Ensure consistency in your naming conventions (e.g., using either all verbs or all nouns) for clarity.
+
+7. **Error Handling**:
+    - Extend error handling to all critical operations, not just API key retrieval. For instance, check results from API calls and handle potential exceptions gracefully.
+
+8. **Main Guard**:
+    - The `if __name__ == '__main__':` block can be further modularized. You might consider separating command line parsing or different modes of operation for enhanced usability.
+
+### Improvements to Code
+
+Here's a modified version of the updated code with some of these suggestions implemented:
+
+```python
+import logging
+import os
+from common.az_logger.global_logger import CustomLogger
+from git_hub.gh_client import git_hub_code_reviewer
+from git_local.local_client import local_code_reviewer
+from openai import OpenAI
+from open_ai.prompt.llm_prompt import SYSTEM, USER
+
+# Initialize the logger
+AZURE_LOGGER_NAMES = ['azure.core.pipeline.policies.http_logging_policy', 'azure.storage']
+for logger_name in AZURE_LOGGER_NAMES:
+    logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+# Constants (consider externalizing)
+REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"
+BRANCH_NAME = "rel_01"
+OUTPUT_FILE = "code_review_comments.txt"
+REPO_NAME = 'wideGenesis/codereviewer'
+MODEL_NAME = "gpt-4o-mini"
+
+REVIEW_ASSISTANT = SYSTEM["code_review_assistant"]
+USER_PROMPT = USER["code_review"]
+
+# Logger Setup
+logger = CustomLogger(azure_connection_string=None, log_level_local="debug", log_level_azure="debug")
+
+# OpenAI Client Initialization
+api_key = os.getenv("OPENAI_API_KEY")
+if api_key is None:
+    logger.error("OPENAI_API_KEY is not set. Please set it in your environment.")
+else:
+    try:
+        completion_client = OpenAI(api_key=api_key)
+    except Exception as e:
+        logger.error(f"Failed to initialize OpenAI client: {e}")
+        raise
+
+def get_review_params():
+    return logger, completion_client, REVIEW_ASSISTANT, USER_PROMPT, MODEL_NAME
+
+def run_local_code_reviewer() -> None:
+    """Executes a local code review for the specified repository, branch, and output file."""
+    local_code_reviewer(REPO_PATH, BRANCH_NAME, OUTPUT_FILE, *get_review_params())
+
+def run_github_code_reviewer() -> None:
+    """Executes GitHub code review for the specified repository."""
+    git_hub_code_reviewer(REPO_NAME, *get_review_params())
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-    pr_list = list_pull_requests(REPO_NAME)
-    
-    try:
-        pr_number = int(input("Enter the number of the PR (e.g., 123):\n"))
-        
-        # Ensure the PR number exists in the list of pull requests
-        if pr_number not in [pr['number'] for pr in pr_list]:
-            logging.error(f"PR number {pr_number} does not exist.")
-            exit(1)
-
-    except ValueError:
-        logging.error("Invalid input; please enter a valid integer for the PR number.")
-        exit(1)
-    except Exception as e:
-        logging.exception("An unexpected error occurred:")
-        exit(1)
-    
-    commit_files = get_pull_request_commit_files(REPO_NAME, pr_number)
-    logging.info(f"Commit files for PR {pr_number}: {commit_files}")
+    """Main function to run code reviewers"""
+    run_local_code_reviewer()
+    run_github_code_reviewer()
 
 if __name__ == '__main__':
     main()
 ```
 
-### Summary of Changes:
-1. Introduced error handling for invalid PR numbers.
-2. Wrapped the main logic in a `main()` function.
-3. Changed `print` statements to use the `logging` module for better error reporting.
-4. Improved user input prompts for clarity.
-5. Utilized a constant for the repository name for better code organization. 
-
-These changes aim to enhance maintainability and user experience.
-
-Changes in file:
- a/common/__init__.py b/common/__init__.py
-new file mode 100644
-index 0000000..e69de29
-
-
-It appears that the code changes you've provided are unrelated to a specific implementation. The file `b/common/__init__.py` is being created as an empty file, and it seems that no actual code or functionality has been introduced in this addition.
-
-Here are some suggestions for your `__init__.py` file and improvements to consider:
-
-1. **Purpose of the `__init__.py` File**: 
-   - If the folder `common` is meant to be treated as a package, it's good practice to include a docstring at the top of `__init__.py` explaining the purpose of the package and what modules it offers.
-
-   ```python
-   """Common utilities for the application.
-
-   This module provides shared functionality and helper methods used across
-   different parts of the application.
-   """
-   ```
-
-2. **Organizing Imports**:
-   - If there are common utility functions or classes, consider importing them into this `__init__.py` to make them accessible directly from the `common` package.
-
-   ```python
-   from .some_module import SomeClass, some_function
-   ```
-
-3. **Document the Module**:
-   - Use comments in the file to describe any important decisions or to outline a plan for what should eventually be added.
-
-4. **Consider Adding Type Hints**:
-   - If you plan to use this file in the future, adding type hints when you introduce functions or classes will aid in code readability and maintainability.
-
-5. **Ensure It’s Not a Placeholder**:
-   - If this file is meant to be a placeholder, take it time-stamped or with a temporary comment indicating future developments.
-
-6. **Versioning and License**:
-   - If your project has versioning and licensing in place, you might want to include relevant information at the top of this file.
-
-7. **Testing**: 
-   - If applicable, consider adding a test or example that showcases the intended use of the package as it grows.
-
-Once you start implementing functionality for your `common` package, you'll want to make sure you've followed these practices to keep your code organized and maintainable. Let me know if you need further assistance or if there are additional code changes to review!
-
-Changes in file:
- a/common/az_logger/global_logger.py b/common/az_logger/global_logger.py
-new file mode 100644
-index 
-
-The code you provided defines a singleton logger that can log messages to a local stream and optionally to Azure. While the implementation is mostly solid, there are several areas where improvements can be made for clarity, efficiency, and functionality. Here are my suggestions:
-
-### 1. Docstrings and Documentation
-- The comments in Russian can be translated to English to make the code more accessible to a wider audience. Additionally, the documentation in docstrings can be enhanced with examples or clarifications of function usage.
-- Consider adding a brief module-level docstring explaining the purpose of this module and how to use the `CustomLogger`.
-
-### 2. Logging Levels
-- When calling `setLevel`, only `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`, and `NOTSET` are valid levels. It would be useful to add checks to ensure the provided levels are valid and raise a meaningful exception otherwise.
-
-### 3. `shutdown` Method Implementation
-- The `shutdown` method is currently empty. If the intention is to flush logs or close resources, consider implementing this functionality, especially if an `AzureLogHandler` is in use, which might require flushing logs to Azure.
-
-### 4. ThreadPoolExecutor Usage
-- The commented-out sections for an executor suggest a possible intent for asynchronous logging. If this feature will be used in the future, ensure to implement it properly and handle exceptions or resource cleanup properly.
-
-### 5. Method Naming Conventions
-- The method `_log_async` is defined but not utilized. If you choose to keep it for future asynchronous logging, its name might imply only internal usage. Consider revisiting its visibility or adding usage evidence.
-- Ensure method names are consistent in their case style. For example, `debug`, `info`, etc., can be called `log_debug`, `log_info`, etc., if you want to indicate their logging purpose more explicitly.
-
-### 6. Use of `Optional` Type Hint
-- In the `__init__` method, `azure_connection_string` is marked as `Optional[str]`, but there should be a clear distinction if it’s not provided; consider making this more explicit, whether by using `None` as a default or by validating it.
-
-### 7. Redundant Logging Logic
-- The logging setup has repetitive structures (like `setLevel`, `setFormatter`). To promote DRY (Don't Repeat Yourself) principles, consider refactoring the logging setup into a helper method.
-
-### 8. Future Extensibility
-- If you aim to extend this logger's capabilities in the future, consider using configuration management or dependency injection to set up different types of loggers without modifying the logger's internal implementation.
-
-Here’s an improved snippet for certain sections of your logger, reflecting some of these suggestions:
-
-```python
-def _get_log_level(self, log_level: str) -> int:
-    """Get logging level from string representation."""
-    level = log_level.upper()
-    if level not in logging._levelToName.values():
-        raise ValueError(f"Invalid log level: {log_level}. Valid levels: {list(logging._levelToName.values())}")
-    return getattr(logging, level)
-
-def shutdown(self):
-    """Flush all handlers and cleanup on shutdown, if necessary."""
-    for handler in self.logger.handlers:
-        handler.flush()
-        handler.close()
-    self.logger.handlers.clear()
-```
-
 ### Summary
-Overall, the code has a solid foundation for logging setup. By implementing the suggested improvements, you enhance the clarity, robustness, and maintainability of the logger, making it easier for others (or for your future self) to use and extend it.
+Overall, your code changes show clear improvements and thoughtfulness. The additional suggestions encourage better practices, enhance code quality, and provide improved clarity for future developers working on this codebase. Emphasizing error handling, modularization, and constants management will contribute to a maintainable and robust codebase.
 
 Changes in file:
- a/docker-compose.yml b/docker-compose.yml
-new file mode 100644
-index 0000000..1cb228f
---- /dev/null
+ a/git_hub/gh_client.py b/git_hub/gh_client.py
+index c43ddc5..0da520a 100644
+--- a/git_hub/gh_client
 
-Your Docker Compose file appears to set up a variety of services, including `n8n`, MySQL, Redis, and Grafana, among others. Here are some recommendations and improvements for your code:
+The code changes you've made introduce new functionality for extracting Python file changes from pull requests and formatting these changes for reviewing using an LLM (Large Language Model). Here are several suggestions and improvements you could consider:
 
-### Security Improvements
+### 1. Code Organization
+- **Modular Functions:** It would be beneficial to break up larger functions into smaller, single-responsibility functions. This not only improves readability but makes unit testing easier.
+  
+- **Type Hinting:** You have improved type hinting, which is great. Ensure that all public-facing functions have clear and complete type hints for better code clarity.
 
-1. **Environment Variables for Credentials**:
-   - Avoid hardcoding sensitive information, such as passwords (`N8N_BASIC_AUTH_PASSWORD`, `MYSQL_ROOT_PASSWORD`, etc.) directly in the `docker-compose.yml`. Instead, use environment variable files (e.g., `.env`) and reference them in the Compose file:
-     ```yaml
-     environment:
-       - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
-     ```
+### 2. Documentation and Comments
+- **Function Documentation:** Ensure that all functions have docstrings explaining their purpose, parameters, and return types. While you have done this for the new functions, existing functions should also be reviewed for similar documentation.
 
-2. **Avoid `ALLOW_EMPTY_PASSWORD=yes`**:
-   - For the Redis containers, using an empty password is not recommended. Define a strong password in your stacks.
+- **Code Comments:** Remove commented-out code unless it serves a purpose or adds context. Instead, refer to version control (git) history for changes that may have been commented out.
 
-3. **Remove Comments on Production Notes**:
-   - Comments referring to production configurations (e.g., `# TODO Íà ïğîäàêøåí îáÿçàòåëüíî óäàëèòü`) should be noted carefully or removed. Include this in your documentation instead.
+### 3. Error Handling
+- **Specific Exceptions:** Instead of catching all exceptions in `save_review_comments`, consider catching only specific exceptions (like `IOError` for file operations). This prevents masking other errors unintentionally.
 
-### Code Organization and Readability
+- **Graceful Exit:** Rather than using `exit(1)`, consider raising an appropriate exception. This allows for better control of the program's flow, especially if the function can be part of a larger program or library.
 
-4. **Indentation Consistency**:
-   - Ensure consistent indentation (2 spaces for YAML). It looks like your indentation is inconsistent; for example, the `n8n` service is indented more than other services that are commented out.
+### 4. Use of `logging`
+- **Log Messages:** Make sure your log messages provide enough context. In the case of logging errors, also include relevant information (like the `pr_number`, `repo_name`, etc.).
 
-5. **Use of Comments**:
-   - Although you have provided comments in Russian, keep comments in English (or a mix if your team is bilingual) for better future collaboration.
-
-6. **Clearer Volume Declaration**:
-   - It might be useful to keep the declarations for unused volumes (like `redis_data`, `mysql_data`, etc.) if they are eventually going to be used, but make sure to add comments explaining their purpose.
-
-### Code Functionality
-
-7. **Service Dependencies**:
-   - If there are services that depend on others starting first (like `n8n` depending on `mysql`), consider utilizing the `depends_on` directive to control the startup order.
-
-8. **Scaling Options**:
-   - If any of the services (especially Redis) might need to be scaled in the future, indicate how this will be handled. This can be noted in comments as well.
-
-9. **Network Configurations**:
-   - Ensure that all services that require intercommunication are properly connected to the defined `app-network`. For example, check if services like `n8n` need access to MySQL.
-
-### Version Specification
-
-10. **Docker Compose Version**:
-    - Include a version specification at the top of the file to improve compatibility and clarity:
-      ```yaml
-      version: '3.8'
-      ```
-
-### Example Revised Docker Compose File
-
-Here’s how you could revise it to incorporate some of these suggestions:
-
-```yaml
-version: '3.8'
-
-services:
-  n8n:
-      image: n8nio/n8n:latest
-      restart: always
-      ports:
-        - "5678:5678"
-      environment:
-        - N8N_BASIC_AUTH_ACTIVE=true
-        - N8N_BASIC_AUTH_USER=admin
-        - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
-        - GENERIC_TIMEZONE=Europe/Moscow
-        - N8N_SECURE_COOKIE=false
-
-      volumes:
-        - n8n_data:/home/node/.n8n
-
-# Uncomment and secure these services as needed
-#  mysql:
-#    image: bitnami/mysql:latest
-#    container_name: bitnami_mysql
-#    environment:
-#      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-#      - MYSQL_DATABASE=codereviewer
-#      - MYSQL_USER=general
-#      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-#    volumes:
-#      - mysql_data:/bitnami/mysql
-#    networks:
-#      - app-network
-#    ports:
-#      - "3306:3306"
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  n8n_data:
-    driver: local
-```
-
-### Final Notes
-
-Make sure to test your configuration in a staging environment first to verify the changes and ensure everything operates as expected before moving to production.
-
-Changes in file:
- a/git_hub/__init__.py b/git_hub/__init__.py
-new file mode 100644
-index 0000000..e69de29
-
-
-It appears that the provided code changes indicate the creation of a new file `git_hub/__init__.py`, but the content of the file is not provided (it's currently empty). To provide a meaningful review and suggest improvements, please add the content of the newly created `__init__.py` file.
-
-However, I can provide some general guidance and best practices regarding the `__init__.py` file:
-
-1. **Purpose of `__init__.py`:** 
-   - Ensure that this file is needed for the package to be recognized. An empty `__init__.py` file is valid but typically it serves a purpose (e.g., exposing certain classes or functions, or it may contain package-level variables).
-
-2. **Documentation:**
-   - Consider adding docstrings to describe the package’s purpose and any public interfaces that you intend to expose.
-
-3. **Module Imports:**
-   - If you want to expose certain classes, functions, or variables from other modules within the package, you can import them in `__init__.py`. For example:
-     ```python
-     from .module import ClassName, function_name
-     ```
-
-4. **Organization:**
-   - For larger packages, consider organizing the imports and any initialization code clearly. 
-
-5. **Version Information:**
-   - If applicable, you can also define a `__version__` variable in your `__init__.py` to inform users about the current version of the package.
-
-6. **Error Handling:**
-   - If you are performing any initialization tasks (like checking dependencies), ensure proper error handling.
-
-7. **Testing:**
-   - Ensure you include tests for any functionality provided by the modules in this package.
-
-Once you provide the specific content of `git_hub/__init__.py`, I can offer a more tailored review!
-
-Changes in file:
- a/git_hub/client.py b/git_hub/client.py
-new file mode 100644
-index 0000000..5e178f3
---- /dev/null
-+
-
-Your implementation of the GitHub client looks well-structured and functional. However, there are several areas where you can improve the code's readability, maintainability, and efficiency. Here are some suggestions:
-
-1. **Separation of Concerns**: Consider organizing your code by separating functions into different modules, especially if your project grows. Keep the GitHub client logic in one module, and maybe another for handling environment variables.
-
-2. **Proper Logging Levels**: Instead of using `logging.info` for every detail, use different logging levels such as `logging.debug` for tracing internal states and `logging.info` for general application flow. This will help in reducing log verbosity during regular runs.
-
-3. **Type Annotations**: You should add type annotations to your function parameters and return types for more clarity, especially for the list and dictionary structures you are returning.
-
-4. **Function Return Types**: Instead of returning `None` on errors, consider raising a custom exception. This allows the calling code to handle errors more explicitly.
-
-5. **Use of Context Managers**: Although it's not very applicable here since you're handling API calls, consider using context managers for file operations in similar projects.
-
-6. **Performance Considerations**: If you anticipate a large number of pull requests or commits, fetching all data at once and caching might be more efficient than invoking multiple API calls.
-
-7. **Docstring Enhancements**: Improve your docstrings by specifying the types of the return values. For example, mention “List of PullRequest objects” instead of just “List of pull requests.”
-
-Here’s a revised version of your code that incorporates some of these suggestions:
-
-```python
-import os
-import logging
-from typing import List, Dict, Optional
-
-from dotenv import load_dotenv
-from github import Github
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-# Load environment variables
-load_dotenv(dotenv_path='settings/.env')
-
-class GitHubClientError(Exception):
-    """Custom exception class for GitHub client errors."""
-    pass
-
-def get_github_client() -> Github:
-    """Initialize the GitHub client using a Personal Access Token.
-    
-    Raises:
-        GitHubClientError: If the GITHUB_TOKEN environment variable is not set.
-    
-    Returns:
-        Github: An initialized Github client.
-    """
-    access_token = os.getenv('GITHUB_TOKEN')
-    if not access_token:
-        raise GitHubClientError("GitHub token not found. Please set the GITHUB_TOKEN environment variable.")
-    return Github(access_token)
-
-def list_pull_requests(repo_name: str) -> Optional[List]:
-    """List all open pull requests for the specified repository.
-    
-    Args:
-        repo_name (str): The name of the repository in the format 'owner/repo'.
-    
-    Returns:
-        Optional[List]: A list of pull requests or None if an error occurs.
-    """
-    github_client = get_github_client()
-    try:
-        repo = github_client.get_repo(repo_name)
-        pull_requests = repo.get_pulls(state='open')
-
-        pr_list = []
-        for pr in pull_requests:
-            logging.info(f"PR #{pr.number}: {pr.title} by {pr.user.login} (State: {pr.state})")
-            logging.info(f"Created at: {pr.created_at}, URL: {pr.html_url}")
-            pr_list.append(pr)
-
-        return pr_list
-
-    except Exception as e:
-        logging.error(f"Error fetching pull requests: {e}")
-        raise GitHubClientError(f"Error fetching pull requests from repo {repo_name}") from e
-
-def get_pull_request_commit_files(repo_name: str, pr_number: int) -> Optional[Dict[str, List[Dict]]]:
-    """Retrieve the changed files and content for each commit in a specified pull request.
-    
-    Args:
-        repo_name (str): The name of the repository in the format 'owner/repo'.
-        pr_number (int): The pull request number to fetch commits and files from.
-    
-    Returns:
-        Optional[Dict]: A dictionary with commit SHAs as keys and lists of file details as values, or None if an error occurs.
-    """
-    github_client = get_github_client()
-    try:
-        repo = github_client.get_repo(repo_name)
-        pull_request = repo.get_pull(pr_number)
-
-        logging.info(f"Fetching commits and files for PR #{pr_number}: {pull_request.title}")
-        commits = pull_request.get_commits()
-        commit_files = {}
-
-        for commit in commits:
-            sha = commit.sha
-            logging.debug(f"Fetching files for commit SHA: {sha}")
-            files = commit.files
-            changed_files = []
-
-            for file in files:
-                file_info = {
-                    "filename": file.filename,
-                    "additions": file.additions,
-                    "deletions": file.deletions,
-                    "changes": file.changes,
-                    "status": file.status,
-                    "patch": file.patch
-                }
-                changed_files.append(file_info)
-
-                logging.debug(f"File: {file.filename}, Additions: {file.additions}, Deletions: {file.deletions}")
-                logging.debug(f"Patch: {file.patch}")
-
-            commit_files[sha] = changed_files
-
-        return commit_files
-
-    except Exception as e:
-        logging.error(f"Error fetching commit files for PR #{pr_number}: {e}")
-        raise GitHubClientError(f"Error fetching commit files for PR #{pr_number}") from e
-```
-
-These enhancements will make your code cleaner, more maintainable, and more readable while also providing better error handling.
-
-Changes in file:
- a/open_ai/chat_gpt.py b/open_ai/chat_gpt.py
-deleted file mode 100644
-index 703bd85..0000000
---- a/o
-
-It seems that the code you've shared has been completely deleted. To provide the best assistance, I'll assume you wanted to preserve the functionality and perhaps enhance the code based on best practices in Python.
-
-Here are some general suggestions and improvements that could be applied to such a module prior to its deletion:
-
-1. **Modular Structure**: Depending on its usage, consider separating the code into smaller modules (or files). For example, the retry logic and the chat API function could be in separate modules. This can facilitate easier testing and maintenance.
-
-2. **Logging**: Instead of using `print()` statements for logging errors, consider using Python's built-in `logging` module. This provides a more flexible way of handling log levels and outputs:
+### 5. Performance Considerations
+- **String Concatenation:** When concatenating strings in Python, using `str.join` is generally more efficient than using `+=` repeatedly, especially in loops. For example:
 
     ```python
-    import logging
-
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
-    # Use logger instead of print
-    logger.error(f"An error occurred: {str(e)}")
+    all_comments_parts = []
+    for file_data in python_files:
+        ...
+        all_comments_parts.append(f"### Review for {filename}:\n\n{file_comments}\n\n")
+    
+    all_comments = ''.join(all_comments_parts)
     ```
 
-3. **Type Annotations**: The function `chat_gpt_api` already employs type annotations, which is excellent for readability and Enforce type safety. Ensure that all parameters and return types have appropriate annotations.
+### 6. Additional Improvements
+- **Consistent Naming Conventions:** Ensure that variable names are consistently styled (e.g., `snake_case` for variables). It looks like you've generally done this well, but check for any inconsistencies.
 
-4. **Error Handling**: The error handling implementation could be refined. Currently, it catches exceptions, logs them, and then re-raises. It might be useful to add some context to the logged messages.
+- **Use of Constants:** If you have repeated strings like the section header format (e.g., "### Review for {filename}"), consider defining them as constants to avoid duplication and potential errors.
 
-5. **Configuration Parameters**: Consider externalizing configuration values (like `gpt_model`) instead of hardcoding them in the function parameters. This could be achieved using environment variables or a configuration file.
+### 7. Unit Tests
+- **Testing**: If you haven't already, consider writing unit tests for your new functions. Specifically, test `extract_python_files_from_commit` and `format_changes_for_llm` functions to assert that they produce expected outputs based on input scenarios.
 
-6. **Documenting Usage**: While function docstrings exist, further documentation could be provided (perhaps in a README file) detailing how to configure and use this module.
-
-7. **Consider `asyncio` Best Practices**: Ensure that you’re using `await` correctly in any async context, and handle the lifecycle of your async operations properly.
-
-8. **Testing**: If not already in place, consider adding unit tests to cover the `chat_gpt_api` function and its dependencies to ensure that it behaves as expected under various conditions.
-
-9. **Provide a Fallback**: If the API is unavailable or if a specific exception is raised, consider a fallback mechanism or provide a user-friendly message.
-
-Here is an example of how you might rewrite the `chat_gpt_api` function incorporating some of these suggestions:
-
-```python
-import logging
-from typing import List, Union, Awaitable
-from openai import AsyncOpenAI, APIStatusError, OpenAIError
-from tenacity import retry, stop_after_attempt, retry_if_exception_type, wait_fixed
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def custom_wait(e):
-    if isinstance(e, APIStatusError):
-        retry_after = e.response.headers.get("Retry-After")
-        if retry_after:
-            retry_after_seconds = int(retry_after)
-            logger.info(f"Received Retry-After header, retrying after {retry_after_seconds} seconds...")
-            return retry_after_seconds
-        return 4
-    return 4
-
-@retry(
-    stop=stop_after_attempt(3),
-    retry=retry_if_exception_type((APIStatusError, OpenAIError)),
-    wait=custom_wait
-)
-async def chat_gpt_api(
-        openai_client: AsyncOpenAI,
-        system_prompt: str,
-        user_prompt: str,
-        code: str,
-        gpt_model: str = "gpt-4o-mini"
-) -> Union[tuple[str, int], str]:
-    """
-    Sends a file code for review to ChatGPT and retrieves the result.
-    """
-    try:
-        response = await openai_client.chat.completions.create(
-            model=gpt_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"{user_prompt}:\n\n{code}"}
-            ]
-        )
-        return response.choices[0].message.content.strip(), response.usage.total_tokens
-    except APIStatusError as e:
-        logger.error(f"API status error occurred: {str(e)}")
-        raise
-    except OpenAIError as e:
-        logger.error(f"OpenAI error occurred: {str(e)}")
-        raise
-```
-
-Since the file has been deleted, if there are any particular aspects of the changes you'd like to focus on or if there's a new code snippet to review, please share, and I'd be glad to assist!
+### Final Thoughts
+These changes generally enhance the clarity, maintainability, and robustness of your code. Implementing these suggestions will not only improve the code's functional quality but also facilitate easier debugging and future enhancements. Keep up the good work!
 
 Changes in file:
- a/open_ai/completion.py b/open_ai/completion.py
-index 96a9c89..be1a046 100644
---- a/open_ai/complet
+ a/git_local/local_client.py b/git_local/local_client.py
+index e9d8e01..43feef0 100644
+--- a/git_loc
 
-It appears that the changes you provided mainly involve the removal of an import statement and a comment within the `completion.py` file. Since these changes are minimal, I'll focus my review on how such modifications could impact the code and suggest best practices.
+The code changes you provided show a refactor of a function related to checking the existence of a branch in a Git repository and getting a Git diff. Here are some suggestions for improvements and best practices:
+
+1. **Function Name and Parameter Documentation**:
+   - It’s a good practice to add type hints to the function parameters and return types. For `check_branch_exists`, you could define the types for `repository` and `branch_name`.
+   - Consider adding a docstring for the `get_git_diff` function as it was removed, which is important for understanding the method's purpose and usage.
+
+   Example:
+   ```python
+   def check_branch_exists(repository: git.Repo, branch_name: str) -> None:
+       """Checks if the specified branch exists in the repository."""
+   ```
+
+2. **Error Handling**:
+   - Instead of raising a generic `ValueError`, you may want to create a custom exception for Git-related errors. This can help distinguish between different types of errors in larger applications.
+
+   Example:
+   ```python
+   class GitBranchError(Exception):
+       pass
+
+   def check_branch_exists(repository: git.Repo, branch_name: str) -> None:
+       """Checks if the specified branch exists in the repository."""
+       if branch_name not in repository.branches:
+           raise GitBranchError(f"Branch {branch_name} not found in the repository")
+   ```
+
+3. **Constant Naming**:
+   - The constant `MAIN_BRANCH` is clearly named, but if you are using more constants related to Git operations, consider using an enum or a dedicated configuration class to manage these values.
+
+4. **Logging**:
+   - If certain operations such as branch checkout or diff retrieval fail, it might be useful to log those events. This can be done using the provided `logger`.
+
+   Example:
+   ```python
+   logger.info(f"Switching to branch: {branch_name}")
+   repository.git.checkout(branch_name)
+   ```
+
+5. **Removing Unused Imports**:
+   - Since you removed the imports for `Union`, `OpenAI`, and `AsyncOpenAI`, make sure there are no leftover references to these libraries in the rest of your code. If they are genuinely unused, they can be deleted.
+
+6. **Simplification**:
+   - While narrowing down the check for branch existence into its own function is great for readability, consider using GitPython's built-in methods to streamline the branch validation further.
+
+7. **Conditions for Diff Return**:
+   - Instead of checking for non-null differences after fetching the diff, consider handling cases where there might not be any differences in a clearer manner, such as returning an empty string or a specific message.
+
+8. **Consider Utilizing `with` Statement for Git Repo**:
+   - If `git.Repo` can be used in a context manager, this would ensure that resources are properly released after use.
+
+Here’s how a refactored piece of your code might look after applying some of these suggestions:
+
+```python
+import git
+import logging
+
+MAIN_BRANCH = 'main'
+
+class GitBranchError(Exception):
+    pass
+
+def check_branch_exists(repository: git.Repo, branch_name: str) -> None:
+    """Checks if the specified branch exists in the repository."""
+    if branch_name not in repository.branches:
+        raise GitBranchError(f"Branch {branch_name} not found in the repository")
+
+def get_git_diff(repo_path: str, branch_name: str, logger: logging.Logger) -> str:
+    """Fetches the git diff between the specified branch and the main branch."""
+    repository = git.Repo(repo_path)
+    check_branch_exists(repository, branch_name)
+    
+    logger.info(f"Switching to branch: {branch_name}")
+    repository.git.checkout(branch_name)
+    
+    differences = repository.git.diff(MAIN_BRANCH, branch_name, unified=0)
+    return differences
+
+# Further code...
+```
+
+By applying these suggestions, you can enhance the readability, maintainability, and robustness of your code.
+
+Changes in file:
+'):
+-        if file_diff.strip():  # Èãíîğèğóåì ïóñòûå ñòğîêè
++    for file_difference in differenc
+
+It looks like you are making a change to a code block related to processing file differences. Here's a review of the provided change along with suggestions for improvements:
 
 ### Code Review
 
-1. **Removed Import Statement**:
-   - The line `from common_lib.schemas.json.schema_completion_vacancy import json_schema_completion_vacancy_output` was removed.
-   - **Suggestion**: Ensure that the `json_schema_completion_vacancy_output` is indeed no longer needed. If it was previously used in the code for validation or as part of processing, its removal could lead to `NameError` exceptions or unintended behavior. Consider using a linting tool like `flake8` or `pylint` to identify any unused imports before removing them.
+1. **Change Context**: It appears that the original code checks if `file_diff` is not empty or only whitespace. The new line intends to start looping through entries in `differences`.
 
-2. **Removed Comment**:
-   - The comment `# Íàñòğàèâàåì ïîëüçîâàòåëüñêóş ëîãèêó îæèäàíèÿ` was removed. This comment provides context about the code that follows it.
-   - **Suggestion**: If this comment is relevant to the surrounding code and logic, consider retaining it or updating it for clarity. Comments should help explain complex pieces of code and indicate any specific logic implemented.
+2. **Variable Naming**: The variable name `file_difference` is clear and descriptive, which is a good practice. Ensure that the context in which it is used remains clear.
 
-3. **Code Readability**:
-   - As the removal of code leads to clearer and more readable code, always ensure that the remaining comments properly describe the logic without being verbose or redundant.
+3. **Splitting Mechanism**: The new code suggests using `differences.split()`. However, it looks like the split is incomplete. You will likely want to specify a separator if it’s not the default whitespace.
 
-4. **Version Control Practices**:
-   - When modifying or removing parts of your codebase, it’s usually a good practice to document the reason for these changes in commit messages. This helps other team members to understand the context behind the changes.
+### Suggestions for Improvement
 
-5. **Testing**:
-   - After making changes, ensure that you run your test suite to confirm that functionality remains intact. If there are no tests covering the removed import or associated functionalities, consider adding tests that validate the expected behavior of your completion logic.
+1. **Complete Split Expression**:
+   - Ensure that the `split` method has an appropriate separator. If the intention is to split on a specific delimiter (like new lines), specify it. e.g., `differences.split('\n')`.
 
-6. **Future Considerations**:
-   - As the project evolves, consider organizing imports more systematically. Avoid wildcard imports and always maintain consistency in import order (standard libraries, third-party libraries, then local imports).
+   ```python
+   for file_difference in differences.split('\n'):
+   ```
 
-By considering these suggestions, you can improve the maintainability and clarity of your code. Remember to always prioritize code readability and documentation, especially when making changes that could influence the understanding of your codebase.
+2. **Trim Whitespaces**: If you want to keep ignoring empty lines or lines that only contain whitespace, consider trimming whitespace from each `file_difference` within the loop.
+
+   ```python
+   for file_difference in differences.split('\n'):
+       if file_difference.strip():  # Ignoring empty lines
+           # Process file_difference here
+   ```
+
+3. **Documentation**: If this code is part of a larger function or method, consider adding a docstring above the function explaining what `differences` should contain and how to use the loop. This provides clarity for future developers.
+
+4. **Error Handling**: Depending on how `differences` is constructed, consider adding error handling around it to manage cases where it might not be a string or is `None`.
+
+   ```python
+   if differences is not None and isinstance(differences, str):
+       for file_difference in differences.split('\n'):
+           if file_difference.strip():  # Ignoring empty lines
+               # Process file_difference here
+   else:
+       raise ValueError("The 'differences' parameter should be a non-empty string.")
+   ```
+
+5. **Commenting**: Instead of leaving comments in a different language (e.g., Russian), use comments in English to ensure that the code is accessible to a wider audience.
+
+   ```python
+   # Ignore empty lines
+   ```
+
+### Final Suggested Code
+
+Here is a revised version incorporating the suggested changes:
+
+```python
+# Assuming `differences` is a string containing file differences
+if differences is not None and isinstance(differences, str):
+    for file_difference in differences.split('\n'):
+        if file_difference.strip():  # Ignore empty lines
+            # Process file_difference here
+else:
+    raise ValueError("The 'differences' parameter should be a non-empty string.")
+```
+
+This updated code should maintain functionality while improving readability and robustness.
 
 Changes in file:
- a/open_ai/openai_code_reviewer.py b/open_ai/openai_code_reviewer.py
-index 20b9468..4cf7138 100644
--
+'):
++        if file_difference.strip():
+@@ -91 +81 @@ def local_code_reviewer(
+-                use
 
-It appears that you have removed a function `get_py_files` and its associated docstring from the `openai_code_reviewer.py` file. While this might be part of your plan (e.g., you could be refactoring the function or perhaps it's no longer needed), it’s essential to ensure that any removal is justified and that there are no alternative functions in the code that could lead to loss of functionality.
+Your code changes seem to involve renaming a variable from `file_diff` to `file_difference`, as well as adjusting its usage in different parts of the code. Here are some suggestions and improvements to enhance clarity, maintainability, and functionality:
 
-Here are some general suggestions regarding the change you made:
+1. **Consistent Naming**: It's good that you renamed `file_diff` to `file_difference` for clarity. Ensure that all places in your code where `file_diff` was used have been updated accordingly. Consistent and clear naming enhances readability.
 
-1. **Justification for Removal:** Ensure that the removal of this function is justified. If it’s being replaced by another implementation or if it’s no longer needed, consider adding a comment explaining why it was removed.
+2. **Strip Empty Lines Check**: In the check `if file_difference.strip():`, ensure there is a clear indication of why empty lines or whitespace are not considered significant. Adding a comment can help others understand the purpose of this check.
 
-2. **Impact on Functionality:** Verify if any other parts of the code depend on this function. If there are calls to `get_py_files()` elsewhere in the code, you may need to refactor them or provide an alternative method to achieve the same outcome.
-
-3. **Documentation Update:** If you removed the function due to it being obsolete or replaced, update relevant documentation or comments in your codebase to ensure that other developers understand the current state of the repository.
-
-4. **Testing:** Make sure to run your test suite to confirm that the code still functions as expected after the removal of this function. If this function had related tests, you should remove or update them accordingly.
-
-5. **Consider Version Control:** If the removal was an error or might cause issues later, ensure that you have adequately tracked this change through your version control system (like Git). This will allow you to revert if necessary.
-
-6. **Code Clarity and Maintainability:** If the function had valuable logic, consider whether the logic needs to be implemented elsewhere or can be rewritten more clearly. 
-
-7. **Alternative Implementations:** If the function is replaced by another piece of logic, ensure that the new implementation is well-documented and follows good coding practices (clear naming, error handling, etc.).
-
-If you provide some context or the remaining code around this change or mention what the function is replaced with (if anything), I can give more targeted suggestions!
-
-Changes in file:
- a/open_ai/prompt/__init__.py b/open_ai/prompt/__init__.py
-new file mode 100644
-index 0000000..e69de
-
-It looks like you've provided a diff output that indicates a new file `__init__.py` was created in the `open_ai/prompt/` folder, but the content of the file is absent (it's an empty file). Since there is no code to review, I can offer some general guidance on creating an `__init__.py` file for your new module or package:
-
-1. **Purpose of `__init__.py`:** 
-   - This file is traditionally used to indicate that the directory should be treated as a package. If you're defining a package for the `open_ai.prompt` namespace, the presence of this file is necessary.
-
-2. **Content Suggestions:**
-   Depending on the intended use of the `open_ai/prompt` package, consider the following:
-   - **Imports:** If there are functions or classes in submodules that you want to make directly accessible when the package is imported, you can import them here.
+3. **Comment Clarity**: The comment `# Ñîõğàíÿåì êîììåíòàğèè â ôàéë` (meaning "Saving comments to file" in Russian) is left in the diff. If the context of this comment is not evident from the surrounding code, consider adding further details or translating it to English, depending on the target audience of the codebase. For example: 
    ```python
-   from .your_submodule import YourClass, your_function
-   ```
-   
-   - **Package Metadata:** You might want to include metadata such as version info:
-   ```python
-   __version__ = '0.1.0'
+   # Save the generated comments to a file for later review
    ```
 
-   - **Docstring:** Add a module-level docstring to describe the purpose of the package.
+4. **Handling Long Differences**: In the line:
    ```python
-   """
-   This module provides functionalities related to OpenAI prompts.
-   """
+   comments += f"Changes in file:\n{file_difference[:100]}\n\n{file_comments}\n\n"
    ```
+   You're currently limiting the number of characters displayed to 100. If your intention is to provide a preview and the file difference can be fairly long, you might consider providing a mechanism to view more lines, such as a link to expand the entire difference, or even a configurable limit for the number of displayed lines.
 
-3. **Testing and Documentation:** 
-   - Ensure that you have tests covering any functionality you intend to implement in this package.
-   - Consider documenting any public functions or classes accordingly.
+5. **Exception Handling**: Depending on how this function is used, you might want to add exception handling around potential areas of failure—such as file reading or formatting issues. It would improve robustness.
 
-4. **Future Development:** 
-   If this package is destined to grow, consider structuring it with clear organization. You might want to create submodules that correspond to functionality areas, and then you can edit your `__init__.py` to reflect that structure.
+6. **Unit Tests**: If you haven't already covered the modifications with unit tests, consider writing tests to check the output of your function with various inputs (e.g., input with no differences, input with long differences, etc.). This ensures your changes function as expected.
 
-5. **Naming Conventions:**
-   Make sure that the structure and naming are consistent with Python's PEP 8 style guide, where applicable. 
+7. **Performance Considerations**: If `file_difference` can be very large, you might want to assess the potential performance implications of slicing it with `[:100]`. While it’s typically not an issue for most cases, it’s good to be mindful of performance, especially if the function is called often or with large data.
 
-Once you have some actual code in there, I’d be happy to provide more specific feedback!
+Here’s a revised version of your code snippet with some of these suggestions applied:
+
+```python
+if file_difference.strip():  # Check if there are actual differences to review
+    comments += f"Changes in file:\n{file_difference[:100]}\n\n{file_comments}\n\n"  # Preview the first 100 characters
+```
+
+If the context allows it, adding more details to comments and ensuring comprehensive testing is key for maintaining code quality.
 
 Changes in file:
  a/open_ai/prompt/llm_prompt.py b/open_ai/prompt/llm_prompt.py
-new file mode 100644
-index 0000000..3
+index 29511d0..0632eee 100644
+--- a/o
 
-The code provided is a new file containing two empty dictionaries, `SYSTEM` and `USER`, which are defined but currently serve no purpose. Here are some suggestions for improvements or next steps:
+The revised code you've shared enhances a prompt configuration for a Python Senior Developer and Solution Architect, focusing on conducting code reviews. There are several improvements made, but there are also areas that could benefit from further refinement. Below are suggestions to enhance clarity, conciseness, and effectiveness of the code changes.
 
-1. **Add Purposeful Content**: 
-   - If `SYSTEM` and `USER` are intended to store prompts or messages for a language model, provide some initial structure or data within these dictionaries. For example:
-     ```python
-     SYSTEM = {
-         "description": "This is the system's role or instructions.",
-         "settings": {"temperature": 0.7, "max_tokens": 150}
-     }
+### Suggestions for Improvements:
 
-     USER = {
-         "instructions": "Please provide your input or query.",
-         "examples": ["What is the weather today?", "Tell me a joke."]
-     }
-     ```
+1. **Conciseness and Clarity**:
+   - The prompt is quite long, and while detail is important, the guidelines can be summarized to improve clarity. Consider bullet points for key sections to make it more digestible.
+   - For example, instead of listing every library with versions, consider focusing on their purpose and usage contexts, and perhaps providing only version ranges if necessary.
 
-2. **Provide Comments and Documentation**: 
-   - Include comments or docstrings explaining what these dictionaries are intended to hold and how they will be used in the overall application. This will help future developers (or yourself) understand the purpose of this file.
+2. **Headings and Structure**:
+   - Utilize markdown headings (`#####`) consistently to create a clear hierarchy of information. This can improve readability by establishing a clear flow of information.
+   - Consider focusing sections on broader topics (e.g., "Performance Optimization Techniques", "Best Practices in Class Design", etc.).
 
-3. **Consider Configurations as Classes or Named Tuples**: 
-   - If `SYSTEM` and `USER` are intended to have fixed attributes that could benefit from validation and behavior, consider using data classes or named tuples. For example:
-     ```python
-     from dataclasses import dataclass
+3. **Avoid Repetition**:
+   - Some points within the guidelines may overlap (e.g., using built-in functions and data structures). Consolidate these points wherever applicable.
+   - For example, merging "Code Structure & Class Design" with "Performance Optimization" could enhance cohesion.
 
-     @dataclass
-     class SystemConfig:
-         description: str
-         settings: dict
+4. **Specific Tools and Recommendations**:
+   - Instead of listing tools and libraries within their usage contexts, highlight common patterns or practices for integrating these tools. This emphasizes reasoning over memorization.
+   - Consider adding a brief rationale for why certain libraries (like FastAPI or Redis) are favored over alternatives, to provide more context.
 
-     @dataclass
-     class UserPrompt:
-         instructions: str
-         examples: list
+5. **Error Handling**:
+   - The "Error Handling" section could detail best practices for specific exceptions. Misuse of exceptions can lead to silent failures; expanding on this will provide clearer guidance.
+   - Include examples of common scenarios where proper error handling is crucial.
 
-     SYSTEM = SystemConfig(description="System instructions", settings={"temperature": 0.7, "max_tokens": 150})
-     USER = UserPrompt(instructions="Enter your question:", examples=["What is the weather today?"])
-     ```
+6. **Asynchronous Operations**:
+   - While you mention using asynchronous libraries, elaborating on the scenarios where they shine versus synchronous counterparts would provide further clarity.
+   - Consider detailing the trade-offs involved in choosing asynchronous programming, particularly in terms of complexity.
 
-4. **Implement Unit Tests**: 
-   - As you're developing the functionality that will use these constants, consider writing tests to ensure that they fulfill their intended purposes, especially if you add more complex structures in the future.
+7. **Testing Best Practices**:
+   - Expand on unit testing and integration testing by including examples of what constitutes good test coverage and the importance of edge cases.
+   - Mention specific testing strategies or patterns (e.g., Arrange-Act-Assert), which can further guide best practices.
 
-5. **Follow PEP 8 Style Guide**: 
-   - Make sure that your formatting follows Python's PEP 8 style guidelines. For example, adding a newline at the end of the file is recommended for better compatibility with some tools.
+8. **Coding Style Enforcement**:
+   - Recommend the use of tools like `Black` for code formatting and `linters` for style checks to enforce coding standards automatically, which aligns with best practices.
 
-6. **Version Control and History**: 
-   - If this file will evolve over time, consider including version history comments or a changelog to document changes as functionality is added.
+9. **Versioning & Compatibility**:
+   - Instead of specifying versions for multiple libraries, recommend the use of a requirements file and guide users on how to check for compatibility for their specific environment.
 
-Overall, starting from an empty structure isn’t a bad approach if you plan to build it out. The key is to provide a clear direction for how it will be used and ensure it has a meaningful structure from the beginning.
+10. **Documentation Standards**:
+    - Include examples of well-structured docstrings and documentation to set a standard for how functions and classes should be documented.
 
-Changes in file:
- a/open_ai/pyproject.toml b/open_ai/pyproject.toml
-deleted file mode 100644
-index 8aaf790..0000000
--
+### Refactored Example Section:
 
-It looks like the `pyproject.toml` file has been deleted in the provided code changes. While I understand this might be intentional, the `pyproject.toml` file contains important metadata and configurations for Python projects, especially when using Poetry for dependency management. Here are a few points and suggestions to consider if you are indeed planning to remove this file:
+Here's an example of how you might rephrase a portion of your prompt:
 
-1. **Preserve Configuration**: If the file contains valuable configuration information (project name, version, dependencies), consider preserving its contents. Deleting it will lead to loss of this crucial data, which is essential for building and managing your project.
+```markdown
+#### General Guidelines:
+- **Python Version**: Code must be optimized for Python >= 3.12. 
+- **Core Libraries**: Use built-in libraries (e.g., `itertools`, `functools`) preferentially. Avoid unnecessary dependencies.
+- **Asynchronous Programming**: Employ async libraries (`aiohttp`, `asyncio`, etc.) for I/O-bound tasks.
 
-2. **Version Control**: If you need to remove it temporarily, you could consider committing the current version of the file to your version control system (e.g., Git) before deletion to retain its history.
+#### Code Optimization Techniques:
+- **Efficient Data Structures**: Use collections appropriately; prefer `set`/`dict` for fast lookups.
+- **Built-in Functions**: Utilize functions like `sum()`, `map()`, and comprehensions for concise and efficient code.
+- **Caching Mechanisms**: Implement `functools.lru_cache` for costly function calls.
 
-3. **Dependency Management**: Without `pyproject.toml`, managing dependencies will become more challenging. If you plan to switch dependency managers or approaches, ensure that equivalent information is being captured and utilized in the new configuration.
-
-4. **Project Build Configurations**: If you are moving away from using Poetry as a build system, make sure to inform the rest of your team and update the documentation. A proper transition plan is critical.
-
-5. **Alternatives**: If you're replacing the Poetry setup with another dependency management system (like pip and requirements.txt), ensure that you migrate the configurations appropriately.
-
-6. **Rename for Clarity**: If the project’s purpose or approach has significantly changed, consider renaming the project in the new setup to avoid confusion.
-
-7. **Documentation Update**: Make sure that any related documentation (e.g. README, contribution guidelines) reflects the changes in project setup or dependency management.
-
-If you're uncertain about removing this file, it might be worthwhile to discuss it with your team or re-evaluate the need for its deletion. If you're moving to a new system, providing a migration guide could also be beneficial to other developers working on the project.
-
-Changes in file:
- a/requirements.txt b/requirements.txt
-new file mode 100644
-index 0000000..de1d4c5
-Binary files /dev
-
-It seems like the provided change indicates a new file (`requirements.txt`) has been added to your project. Without seeing the content of this file, I'll suggest some general best practices for creating a `requirements.txt` file in Python projects. 
-
-1. **Use the `pip freeze` Command**: To ensure that you capture all the libraries your project depends on, run the command `pip freeze > requirements.txt`. This will list the currently installed packages and their versions.
-
-2. **Specify Versions**: Be explicit with package versions to avoid breaking changes in the future. You can specify versions using operators like `==`, `>=`, and `<=`. For example:
-   ```
-   requests==2.25.1
-   numpy>=1.19.0,<1.21.0
-   ```
-
-3. **Group Dependencies**: If your project has different types of dependencies (e.g., runtime, development, testing), consider separating them into different files or using comments to indicate their purpose. For instance:
-   ```
-   # Runtime dependencies
-   flask==1.1.2
-   requests==2.25.1
-
-   # Development dependencies
-   pytest==6.0.1
-   ```
-
-4. **Use a Virtual Environment**: Always make sure you are working within a virtual environment. This helps in preventing clashes between project requirements.
-
-5. **Regular Updates**: Regularly update your dependencies and re-generate the `requirements.txt` file to keep it relevant and secure.
-
-6. **Include `pip-tools`**: If your project grows, consider using tools like `pip-tools` to manage and compile your dependencies more effectively. This tool helps you maintain a `requirements.in` file and generate `requirements.txt` with pinned versions.
-
-7. **Documentation**: Include any specific instructions or comments in your repository's documentation about how to create and manage `requirements.txt`, so other contributors know how to work with dependencies.
-
-If you can share the contents of the `requirements.txt` file, I'd be able to provide more specific feedback and recommendations!
-
-Changes in file:
- a/schema/__init__.py b/schema/__init__.py
-new file mode 100644
-index 0000000..e69de29
-
-
-It looks like the code changes you provided indicate the creation of a new file `__init__.py` within the `schema` directory. However, the content of the file is not provided, as it appears to be new and empty (as indicated by `e69de29`, which is the hash for an empty file).
-
-Here are some suggestions for what you might consider adding or improving in the new `__init__.py` file:
-
-1. **Module Initialization**: If this module is intended to be a package, you may want to include initialization code, such as importing key classes or functions that should be available when the package is imported.
-
-   ```python
-   from .models import MyModel
-   from .utils import helper_function
-   ```
-
-2. **Documentation**: Consider adding a docstring at the top of the file to describe the purpose of the module, any essential classes or functions it contains, and how it should be used.
-
-   ```python
-   """
-   This module provides functionality for schema management.
-
-   Key components:
-   - MyModel: Represents ...
-   - helper_function: Provides ...
-   """
-   ```
-
-3. **Versioning**: If applicable, you might include version information for the module.
-
-   ```python
-   __version__ = "0.1.0"
-   ```
-
-4. **Imports**: Import any necessary submodules or packages if they are needed for the functionality you're developing.
-
-5. **Testing and Type Checking**: If you're including implementations, consider using type annotations for your functions and classes to improve readability and make it easier for tools like mypy to check for type errors.
-
-6. **Environment Management**: If this package handles configurations or settings, consider providing a way to define such requirements.
-
-If you have specific implementations or additional context for this `__init__.py`, feel free to share, and I can provide a more tailored review and suggestions!
-
-Changes in file:
- a/schema/completion/__init__.py b/schema/completion/__init__.py
-new file mode 100644
-index 0000000.
-
-The code snippet you provided indicates that a new file `__init__.py` is being created in the `a/schema/completion/` directory. The file is currently empty, as the `index` shows that it has no content.
-
-Here are some suggestions and improvements that you may consider for this `__init__.py` file:
-
-1. **Add Module Docstring**: Include a module-level docstring at the top of your `__init__.py` file to provide a brief description of the purpose of the module. This is especially important for keeping documentation organized and helpful.
-
-   ```python
-   """
-   This module provides the completion functionality for the schema.
-   """
-   ```
-
-2. **Import Necessary Functions/Classes**: If there are any functions or classes in this module that you want to make available for import when someone imports the package, you should import them here. For example:
-
-   ```python
-   from .completion_function import some_function
-   ```
-
-3. **Define `__all__`**: If appropriate, define an `__all__` list to explicitly state which the functions or classes should be accessible when the module is imported with the `from module import *` syntax.
-
-   ```python
-   __all__ = ['some_function', 'AnotherClass']
-   ```
-
-4. **Set Up Version Information**: If this module is part of a larger package, consider including versioning information to help with package management.
-
-   ```python
-   __version__ = '0.1.0'
-   ```
-
-5. **Consider Adding Tests**: While you cannot include tests in the `__init__.py` file, plan to create a corresponding test suite to validate the functionality you intend to include later.
-
-6. **Importing Submodules**: If you have submodules within the `completion` package, you can import them here to make it easier for users of your package.
-
-   ```python
-   from . import submodule1
-   from . import submodule2
-   ```
-
-7. **Maintain Cleanliness**: Make sure to keep the code organized and tidy. Avoid unnecessary imports and ensure that you are only exporting the necessary components.
-
-If you plan to add specific functionality later, you might want to leave some placeholder comments in the file to guide future changes. For now, if the file is going to remain empty for a while, it’s a common practice to remove it or at least add the module docstring.
-
-Here’s an example of how your `__init__.py` might look:
-
-```python
-"""
-This module provides the completion functionality for the schema.
-"""
-
-__version__ = '0.1.0'
-
-# Import necessary functions or classes
-# from .completion_function import some_function
-
-# Define the export list (optional)
-# __all__ = ['some_function']
+#### Testing Best Practices:
+- **Coverage**: Employ `pytest` to ensure comprehensive test coverage and validate key functionalities.
+- **Structure**: Follow the Arrange-Act-Assert pattern to maintain clarity in test cases.
 ```
 
-Feel free to adopt or omit any suggestions based on your project's specific needs.
+This example provides clarity, maintains key information, and organizes the content in a more user-friendly format.
 
-Changes in file:
- a/settings/__init__.py b/settings/__init__.py
-new file mode 100644
-index 0000000..e69de29
-
-
-It looks like the provided code changes indicate that a new file `__init__.py` was added to the `a/settings` directory, but no actual content is shown in the diff output (`index 0000000..e69de29` indicates it’s an empty file). 
-
-Here's a review and suggestions for improving this change:
-
-1. **Add File Content**: If this `__init__.py` file is meant to be part of a package, it should contain relevant code or at least documentation. Consider adding some initial content. At a minimum, you could include a docstring indicating the purpose of this module or package.
-
-   ```python
-   """
-   This module contains settings for the application.
-   """
-   ```
-
-2. **Make Use of the File**: If there are settings or configurations that need to be initialized, consider defining them within this file or importing them from other modules.
-
-3. **Organize Settings**: If the settings module is supposed to encapsulate certain configurations (like constants, or environment-specific settings), make sure to organize them well. Here’s an example structure:
-
-   ```python
-   """
-   This module contains settings for the application.
-   """
-
-   # Example settings
-   DEBUG = True
-   DATABASE_URL = "sqlite://:memory:"
-   ```
-
-4. **Documentation**: If applicable, add more detailed documentation describing what settings are available, their purpose, and how they should be used.
-
-5. **Version Control**: If this file is part of version-controlled code (as indicated by the `git` syntax), consider adding a meaningful commit message that clearly describes the purpose of adding this file.
-
-6. **Automated Tests**: If these settings will be used by other parts of your application, you may want to ensure that there are appropriate tests to validate that the settings are applied correctly.
-
-7. **Code Style**: Ensure that your code follows PEP 8 guidelines or any specific style guide your project follows.
-
-Since there's no actual code in the provided diff, these suggestions focus on possible best practices moving forward. Once you have initial content for the `__init__.py`, feel free to share it for a more detailed review!
-
-Changes in file:
- a/settings/conf.py b/settings/conf.py
-new file mode 100644
-index 0000000..4a13164
---- /dev/null
-+++
-
-Thanks for providing the code for review. The code currently shows a configuration setup for various services using Pydantic models, loading environment variables with the `dotenv` library. Below are some suggestions for improvement:
-
-### Code Review Suggestions:
-
-1. **Configuration Loading**:
-    - **Ensure Critical Settings Are Loaded**: Consider implementing error handling for critical environment variables. If these are not set (e.g., DB_HOST for AzureDatabaseConfig), the application should raise an error during startup rather than failing later due to missing configuration.
-    - **Consolidate Environment Variable Loading**: You are currently getting environment variables in each class. Instead, you might create a centralized function that validates and returns environment variables.
-
-    ```python
-    def get_env_variable(key: str, default=None):
-        value = os.environ.get(key, default)
-        if value is None:
-            raise ValueError(f"Missing required environment variable: {key}")
-        return value
-    ```
-
-2. **Security Considerations**:
-    - **Avoid Hardcoding Sensitive Information**: The `MysqlDatabaseConfig` defaults for `DB_USER` and `DB_PASSWORD` should be handled carefully, especially if these values are sensitive. If they need to be provided, default to `None` and require them to be set via environment variables.
-  
-3. **Type Annotations**:
-    - **More Specific Types**: For the `DB_PORT`, consider specifying it as an `int` instead of a `str` as ports are typically numeric. You can handle conversion in your application logic.
-
-4. **Consistency in Naming**:
-    - **Use Consistent Naming Conventions**: Currently, some classes use `DB_` prefix for names while others don't (like `SQL_COPT_SS_ACCESS_TOKEN`). It's beneficial for readability to maintain a consistent style.
-
-5. **Connection String Construction**:
-    - **Avoid Redundant Code**: The connection strings for different databases have repeated patterns. You might consider creating a helper function to generate this string to reduce duplication and potential errors.
-
-6. **Make Use of Pydantic Features**:
-    - **Use Pydantic `Field` for Default Values**: Instead of directly assigning defaults, use Pydantic’s `Field` if you need to set additional metadata:
-
-    ```python
-    from pydantic import Field
-    
-    DB_HOST: str = Field(default_factory=lambda: get_env_variable("DB_HOST", "192.168.1.19"))
-    ```
-
-7. **Documentation**:
-    - **Add Docstrings**: Add docstrings to your classes to describe their purpose and the significance of their attributes to enhance code readability and maintainability.
-
-8. **Environment Variable Loading Path**:
-    - **Make the dotenv Path Configurable**: Right now, `load_dotenv` is hardcoded to look for a `.env` file in the `settings` directory. Consider moving this path to a configuration file or environment variable to avoid modifications in code for different environments.
-
-### Revised Example
-
-Here's how you might start implementing a few of these suggestions:
-
-```python
-import os
-from pydantic import BaseModel, Field, ValidationError
-
-def get_env_variable(key: str, default=None):
-    value = os.environ.get(key, default)
-    if value is None:
-        raise ValueError(f"Missing required environment variable: {key}")
-    return value
-
-class RedisConfig(BaseModel):
-    REDIS_HOST: str = Field(default="192.168.1.19")
-    REDIS_PORT: int = Field(default=6379)
-    REDIS_DB: int = Field(default=0)
-
-class AzureDatabaseConfig(BaseModel):
-    DB_IS_MSI_CONNECT: bool = False
-    DB_DRIVER: str = Field(default="{ODBC Driver 18 for SQL Server}")
-    DB_HOST: str = Field(default_factory=lambda: get_env_variable("DB_HOST"))
-    DB_NAME: str = Field(default_factory=lambda: get_env_variable("DB_NAME"))
-    DB_PORT: int = Field(default=1433)
-    DB_USER: str = Field(default_factory=lambda: get_env_variable("DB_USER", None))
-    DB_PASSWORD: str = Field(default_factory=lambda: get_env_variable("DB_PASSWORD", None))
-    AZURE_CLIENT_ID: str = Field(default_factory=lambda: get_env_variable("AZURE_CLIENT_ID", None))
-    AZURE_TENANT_ID: str = Field(default_factory=lambda: get_env_variable("AZURE_TENANT_ID", None))
-    SQL_COPT_SS_ACCESS_TOKEN: int = Field(default=1256)  
-    
-    def create_connection_string(self):
-        conn_str = (
-            f"mssql+pyodbc:///?odbc_connect="
-            f"DRIVER={self.DB_DRIVER};"
-            f"SERVER={self.DB_HOST};"
-            f"DATABASE={self.DB_NAME};"
-        )
-        if self.DB_IS_MSI_CONNECT:
-            return conn_str
-        return conn_str + f"UID={self.DB_USER};PWD={self.DB_PASSWORD};Connection Timeout=30"
-
-# Continue defining other configurations similarly...
-
-try:
-    DATABASE_CONF = AzureDatabaseConfig()
-except ValidationError as e:
-    print("Configuration error:", e)
-
-```
-
-These changes should help streamline your configuration setup and improve both security and maintainability.
+### Conclusion:
+Overall, your code changes provide a robust foundation for conducting code reviews with a focus on optimization and best practices. By incorporating these suggestions, you can further enhance the clarity, usability, and effectiveness of your guidelines.
 

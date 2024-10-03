@@ -1,98 +1,371 @@
 ### Review for app.py:
 
-Your code changes appear to enhance the structure and readability of the code by reducing duplication and centralizing configuration. Here are some suggestions for further improvements:
+Your code changes show some good organization and the use of helper functions for fetching the review parameters. However, there are a few areas where improvements can be made for clarity, maintainability, and adherence to Python best practices. Here are my suggestions:
 
-1. **Import Order and Cleanliness**:
-    - Organize your import statements according to the PEP 8 guidelines: standard libraries first, followed by third-party libraries, then local application imports. This improves readability.
-    - Consider removing any unused imports to keep the code clean.
+### 1. **Import Order:**
+Keep the import order consistent and adhere to PEP 8 standards:
+- Standard library imports (like `os` and `logging`)
+- Related third-party imports (like `openai`)
+- Local application/library imports (like `common` and `git_hub`).
 
-2. **Environment Variables Handling**:
-    - It would be beneficial to handle cases where the `OPENAI_API_KEY` environment variable might not be set, potentially raising an error or logging a warning. Example:
-        ```python
-        api_key = os.getenv("OPENAI_API_KEY")
-        if api_key is None:
-            logger.error("OPENAI_API_KEY is not set.")
-            return
-        completion_client = OpenAI(api_key=api_key)
-        ```
+This enhances readability.
 
-3. **Magic Strings**:
-    - You have "hardcoded" constants like `"C:\\Users\\Genesis\\PycharmProjects\\codereviewer"` and `model_name`. Consider using an external configuration file or environment variables for these so that your code is more flexible and adaptable to different environments.
+### 2. **Avoid Hardcoding Values:**
+For constants like `REPO_PATH`, `BRANCH_NAME`, `OUTPUT_FILE`, and `REPO_NAME`, consider moving these to a configuration file or use environment variables. This enhances flexibility and reusability.
 
-4. **Docstrings**:
-    - Your functions have docstrings that describe their purpose, which is good practice. 
-    - Consider using a more specific format by specifying the parameters and return types. For example:
-        ```python
-        def run_local_code_reviewer() -> None:
-            """Executes a local code review for the specified repository, branch, and output file.
+### 3. **Documentation:**
+You have added docstrings for the `run_local_code_reviewer` and `run_github_code_reviewer` functions, which is excellent. Make sure all functions are documented consistently. Consider providing a brief description of the parameters and the return type as well.
 
-            Returns:
-                None
-            """
-        ```
+### 4. **Enhance Logging:**
+While you're setting logging levels on certain loggers, consider using the main logger (`logger`) to log the outcomes of the operations within your main functions. This will help trace issues in the future.
 
-5. **Code Maintainability**:
-    - Consider extracting constants into a separate configuration class or module, especially if you foresee using other configurations in the future.
+### 5. **Parameterization of `local_code_reviewer` and `git_hub_code_reviewer`:**
+While you have simplified the function calls, you might want to ensure that these functions can handle unexpected scenarios gracefully and log the corresponding messages.
 
-6. **Function Naming**:
-    - Ensure that the function names clearly describe their actions. For example, `run_local_code_reviewer` might be clearer as `execute_local_code_review` to imply action.
+### 6. **Use f-strings:**
+If these parameters (like `REPO_PATH`, `BRANCH_NAME`, etc.) need to be logged or printed, consider using f-strings for more readable string formatting (taking full advantage of Python's f-string capabilities).
 
-7. **Error Handling**:
-    - Implement try-except blocks around calls that can fail (such as client initializations and external service calls) to handle exceptions more gracefully.
+### 7. **Main Function Execution:** 
+In the `if __name__ == '__main__':` block, currently, there's no function being invoked. You should call one of the reviewer functions here, or provide some user interface for the selection process.
 
-8. **Main Guard**:
-    - If you add more functionality, consider organizing the code that follows the `if __name__ == '__main__':` check into functions or classes to improve modularity.
-
-Here's a revised version incorporating some of these suggestions:
+### Complete Sample Code with Suggested Improvements:
+Here’s how the code could look after applying the suggested improvements:
 
 ```python
 import logging
 import os
+
 from common.az_logger.global_logger import CustomLogger
 from git_hub.gh_client import git_hub_code_reviewer
 from git_local.local_client import local_code_reviewer
 from openai import OpenAI
 from open_ai.prompt.llm_prompt import SYSTEM, USER
 
-# Initialize the logger
+# Настройка логгера
+logger = CustomLogger(azure_connection_string=None, log_level_local="debug", log_level_azure="debug")
 AZURE_LOGGER_NAMES = ['azure.core.pipeline.policies.http_logging_policy', 'azure.storage']
 for logger_name in AZURE_LOGGER_NAMES:
     logging.getLogger(logger_name).setLevel(logging.WARNING)
 
-# Constants
-REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"  # Consider externalizing
-BRANCH_NAME = "rel_01"  # Consider externalizing
-OUTPUT_FILE = "code_review_comments.txt"  # Consider externalizing
-REPO_NAME = 'wideGenesis/codereviewer'  # Consider externalizing
+# Инициализация клиентов
+completion_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Константы
+REPO_PATH = os.getenv('REPO_PATH', "C:\\Users\\Genesis\\PycharmProjects\\codereviewer")
+BRANCH_NAME = os.getenv('BRANCH_NAME', "rel_01")
+OUTPUT_FILE = os.getenv('OUTPUT_FILE', "code_review_comments.txt")
+REPO_NAME = os.getenv('REPO_NAME', 'wideGenesis/codereviewer')
+
 MODEL_NAME = "gpt-4o-mini"
 REVIEW_ASSISTANT = SYSTEM["code_review_assistant"]
 USER_PROMPT = USER["code_review"]
 
-# Logger Setup
-logger = CustomLogger(azure_connection_string=None, log_level_local="debug", log_level_azure="debug")
-
-# OpenAI Client Initialization
-api_key = os.getenv("OPENAI_API_KEY")
-if api_key is None:
-    logger.error("OPENAI_API_KEY is not set.")
-else:
-    completion_client = OpenAI(api_key=api_key)
-
 def get_review_params():
     return logger, completion_client, REVIEW_ASSISTANT, USER_PROMPT, MODEL_NAME
 
-def run_local_code_reviewer() -> None:
-    """Executes a local code review for the specified repository, branch, and output file."""
+def run_local_code_reviewer():
+    """
+    Выполняет локальный код-ревью для указанного репозитория, ветки и выходного файла.
+    :return: None
+    """
+    logger.info("Starting local code review...")
     local_code_reviewer(REPO_PATH, BRANCH_NAME, OUTPUT_FILE, *get_review_params())
+    logger.info("Local code review completed.")
 
-def run_github_code_reviewer() -> None:
-    """Executes GitHub code review for the specified repository."""
+def run_github_code_reviewer():
+    """
+    Выполняет GitHub код-ревью для указанного репозитория.
+    :return: None
+    """
+    logger.info("Starting GitHub code review...")
     git_hub_code_reviewer(REPO_NAME, *get_review_params())
+    logger.info("GitHub code review completed.")
+
+if __name__ == '__main__':
+    run_local_code_reviewer()  # Or run_github_code_reviewer(), based on your need
+```
+
+### Summary
+By adhering to the suggested changes, your code will be more maintainable, readable, and resilient to changes in configuration. Additionally, improved logging will help you trace runtime behavior more effectively.
+
+### Review for git_local/local_client.py:
+
+The changes you've made to the code seem to improve its structure and readability by extracting the logic for checking if a branch exists into its own function and removing some redundant code. Below are some suggestions for further improvements:
+
+### General Improvements
+
+1. **Docstrings Consistency**: The docstrings for functions should be consistent in formatting. For example, ensure that both the Args and Returns sections are formatted the same way across all function docstrings.
+
+2. **Error Handling**: Currently, any exception in the `get_git_diff` function logs an error but does not propagate the exception. Depending on how this function is used, it may be more beneficial to raise the exception after logging or to include more specific exception handling.
+
+3. **Magic Strings**: The main branch name is hardcoded as `'main'`. Consider making this a configurable constant or read from a configuration file, especially if this codebase could be used with repositories that have different primary branch names.
+
+4. **Logging**: You might want to log detailed information in the `local_code_reviewer` function about each file being processed. This can help trace the process if something goes wrong. Additionally, log before checking for changes.
+
+### Code Specific Improvements
+
+Here are some specific improvements regarding the code changes:
+
+```python
+def check_branch_exists(repository, branch_name):
+    """Checks if the specified branch exists in the repository."""
+    if branch_name not in repository.branches:
+        raise ValueError(f"Branch '{branch_name}' not found in the repository.")
+```
+
+- **Docstring Language**: Maintain a consistent language for documentation; if this is part of a multi-language project, consider adding translations or specifying languages.
+
+```python
+def get_git_diff(repo_path: str, branch_name: str, logger: logging.Logger) -> dict:
+    """
+    Retrieves the differences between the specified branch and the main branch (main) as a dictionary.
+    
+    Args:
+    - repo_path: Path to the local repository.
+    - branch_name: The name of the branch to analyze.
+    
+    Returns:
+    - A dictionary with filenames and their changes.
+    """
+```
+
+- **Return Type**: Change the return type from `dict` to `str` since you are returning the output of the git diff command which is a string.
+
+```python
+        if not differences.strip():  # Check for empty diff
+```
+
+- **Check for Changes**: Simplifying the check for empty results makes the intent clearer.
+
+### Suggestion Revisions
+
+The `local_code_reviewer` function could also benefit from clearer variable names and logging:
+
+```python
+def local_code_reviewer(
+        repo_path: str,
+        branch_name: str,
+        output_file: str,
+        logger: Union[logging.Logger, CustomLogger],
+        completion_client: Union[OpenAI, AsyncOpenAI],
+        system_prompt: str,
+        user_prompt: str,
+        gpt_model: str
+):
+    """
+    Main agent function. Retrieves changes between the branch and main, analyzes them using GPT, and saves the results.
+    
+    Args:
+    - repo_path: Path to the local repository.
+    - branch_name: The name of the branch for analysis.
+    - output_file: Path to the file for saving results.
+    """
+    logger.info(f"Starting code review for branch '{branch_name}' in repository '{repo_path}'.")
+
+    # Retrieve git diff
+    differences = get_git_diff(repo_path, branch_name, logger)
+    if not differences.strip():
+        logger.error("No changes found or an error occurred while retrieving the diff.")
+        return
+
+    comments = ""
+    for file_difference in differences.split('diff --git'):
+        if file_difference.strip():
+            logger.debug(f"Analyzing file changes: {file_difference[:30]}...")  # Log first 30 chars for brevity
+            file_comments = create_completion(
+                openai_client=completion_client,
+                system_prompt=system_prompt,
+                user_prompt=user_prompt.format(file_difference=file_difference),
+                gpt_model=gpt_model
+            )
+            comments += f"Changes in file:\n{file_difference[:100]}\n\n{file_comments}\n\n"
+    
+    save_review_comments(comments, output_file, logger)
+```
+
+### Conclusion
+
+Overall, your changes to the code lead to a more structured and easier-to-understand format. By applying the suggestions above, you can improve error handling, logging, and maintainability. Consider the overall design and ensure that it supports potential future requirements, such as branch customization and improved error management.
+
+### Review for app.py:
+
+The code change you've made involves modifying the output file variables for a local code reviewer and a GitHub code reviewer. Overall, your changes cleanly separate the output files for local and GitHub reviews, improving clarity. However, there are some suggestions and improvements that could be made:
+
+1. **Constant Naming Convention**: 
+   While constants are generally written in uppercase, consider giving them more descriptive names that reflect their purpose. This will make your code clearer to anyone reading it. 
+
+   ```python
+   OUTPUT_FILE_LOCAL = "code_review_comments.txt"  # Consider renaming to CODE_REVIEW_OUTPUT_LOCAL
+   OUTPUT_FILE_GITHUB = "code_review_comments_from_github.txt"  # Consider renaming to CODE_REVIEW_OUTPUT_GITHUB
+   ```
+
+2. **Path Handling**: 
+   Instead of using hardcoded file paths (like `C:\\Users\\Genesis\\PycharmProjects\\codereviewer`), consider using environment variables or configuration files for better flexibility and portability.
+
+3. **Docstring Improvements**: 
+   Your function docstrings are in Russian. If this code will be shared with an international team, consider providing English documentation as well or ensure comments are localized as required.
+
+4. **Error Handling**: 
+   As the functions likely involve file I/O operations and external repository access, consider adding error handling. This might include checking for the existence of the repository path or handling exceptions that occur during file writing.
+
+5. **Function Purpose and Parameters Clarity**:
+   While the function names are generally clear about their purposes, if there are specific types of parameters that `get_review_params()` fetches, consider documenting what those parameters are. This will help maintainability.
+
+6. **Use of Logging**:
+   Instead of just performing actions without any logs or print statements, it may be helpful to log important actions or outcomes, especially for debugging purposes.
+
+Here is a possible refactored version based on the provided feedback:
+
+```python
+# Constants
+REPO_PATH = "C:\\Users\\Genesis\\PycharmProjects\\codereviewer"
+BRANCH_NAME = "rel_01"
+CODE_REVIEW_OUTPUT_LOCAL = "code_review_comments.txt"
+CODE_REVIEW_OUTPUT_GITHUB = "code_review_comments_from_github.txt"
+REPO_NAME = 'wideGenesis/codereviewer'
+
+MODEL_NAME = "gpt-4o-mini"
+
+def run_local_code_reviewer():
+    """
+    Conduct a local code review for the specified repository, branch, and output file.
+    :return: None
+    """
+    try:
+        local_code_reviewer(REPO_PATH, BRANCH_NAME, CODE_REVIEW_OUTPUT_LOCAL, *get_review_params())
+        print(f"Local code review completed. Comments saved to {CODE_REVIEW_OUTPUT_LOCAL}.")
+    except Exception as e:
+        print(f"An error occurred during local code review: {e}")
+
+def run_github_code_reviewer():
+    """
+    Conduct a GitHub code review for the specified repository.
+    :return: None
+    """
+    try:
+        git_hub_code_reviewer(REPO_NAME, CODE_REVIEW_OUTPUT_GITHUB, *get_review_params())
+        print(f"GitHub code review completed. Comments saved to {CODE_REVIEW_OUTPUT_GITHUB}.")
+    except Exception as e:
+        print(f"An error occurred during GitHub code review: {e}")
 
 if __name__ == '__main__':
     run_local_code_reviewer()
     run_github_code_reviewer()
 ```
 
-These changes enhance readability, improve robustness, and provide better maintainability.
+In this refactoring, I included exception handling and changed constant names for better readability. Additionally, adding print statements provides feedback on the completion of operations, and you may consider integrating a logging framework if further robustness is required.
+
+### Review for git_hub/gh_client.py:
+
+Your code changes look good overall, but I have a few suggestions to improve readability, maintainability, and performance. Below are some specific points:
+
+### 1. Logging Enhancements
+- Instead of using multiple `logging.info()` calls in `list_pull_requests` and `get_pull_request_commit_files`, consider using formatted messages to reduce redundancy. For example, in `get_pull_request_commit_files`, you can log the commit files in a single message.
+
+### Suggested Code Improvement in Logging
+```python
+for pr in pull_requests:
+    logging.info(f"PR #{pr.number}: '{pr.title}' by {pr.user.login} (State: {pr.state}) - {pr.created_at} - URL: {pr.html_url}")
+
+# And in get_pull_request_commit_files
+logging.info(f"Fetching {len(commits)} commits and their files for PR #{pr_number}: {pull_request.title}")
+```
+
+### 2. Exception Handling
+- Instead of catching generic `Exception`, it would be beneficial to catch specific exceptions where applicable. This can make debugging easier.
+
+### 3. Code Duplication
+- You can improve maintainability by removing repeated comments (like `# Get the repository object`, `# Fetch the pull request by number`). They can be removed altogether or replaced with a single comment block before the try-except block.
+  
+### 4. Avoid `exit()`
+- Instead of using `exit(0)` or `exit(1)` directly in your functions, it’s often better to raise exceptions or return error codes/messages. This allows for better control of program flow and makes your functions easier to test.
+
+### Suggested Code Improvement for Exiting
+```python
+if len(pr_list) == 0:
+    return "No open pull requests found."  # Replace exit(0)
+```
+
+### 5. Improve Type Annotations
+- The return type for `get_pull_request_commit_files` could be improved by specifying more detail, especially if your return can be an empty dictionary or a dictionary with a specific structure.
+
+### Suggested Type Annotation Improvement
+```python
+from typing import Optional
+
+def get_pull_request_commit_files(repo_name: str, pr_number: int) -> Optional[Dict[str, List[Dict[str, Union[str, int]]]]]:
+```
+
+### 6. Conform to PEP 8
+- Ensure there are no extra blank lines and that the spacing is consistent according to [PEP 8](https://peps.python.org/pep-0008/). 
+
+### 7. Inline Comments
+- If you find comments describing what the code does, consider if the code itself is clear enough to stand without comments. It is often preferable to write clean code that explains itself.
+
+### 8. Function Separation
+- Each function should ideally perform a single responsibility for better clarity.
+
+### Final Suggested Improvements
+Here’s a brief code snippet demonstrating a few improvements:
+
+```python
+def list_pull_requests(repo_name: str):
+    ...
+    if not pr_list:
+        logger.warning("No open pull requests found.")  # Logging instead of exit
+        return []
+
+...
+def get_pull_request_commit_files(repo_name: str, pr_number: int) -> Optional[Dict[str, List[Dict[str, Union[str, int]]]]]:
+    ...
+    except GithubException as e:  # Specify the exception
+        logging.error(f"GitHub error fetching commit files for PR #{pr_number}: {e}")
+        return {}
+```
+
+### Conclusion
+These changes will enhance readability, maintainability, and robustness of the code. Be mindful of keeping logging consistent and useful, as it will help in tracing application flow especially when used in larger systems.
+
+### Review for open_ai/prompt/llm_prompt.py:
+
+The code changes you've provided replace a somewhat dense block of instructions with a more structured, bullet-point format that enhances readability and comprehensibility. Here are some suggestions for further improvement:
+
+### Suggestions:
+
+1. **Section Headings**:
+   - The use of clear section headings is excellent, but consider maintaining a consistent style throughout. For example, you could use #### for all headings, ensuring a unified look.
+
+2. **Document Structure**:
+   - Consider providing a brief introduction at the beginning, summarizing the intent of the guidelines. This can serve as context for new developers or those unfamiliar with the practices suggested.
+
+3. **Consistent Terminology**:
+   - Ensure that terms are consistently used throughout the document. For instance, if you state "asynchronous libraries" once, be consistent in using the same phrasing in other areas instead of switching between "asynchronous" and "async."
+
+4. **Enforce Coding Standards**:
+   - Make it explicitly clear which coding standards should be followed (for example, PEP 8 for Python). This could be included as a key area in the guidelines under either "General Guidelines" or "Best Practices."
+
+5. **Examples**:
+   - Providing examples of some best practices or common pitfalls could be helpful for users. For instance, under the "Logging" section, you could include a simple code snippet demonstrating how to implement logging in a network operation.
+
+6. **Rule Consolidation**:
+   - Some rules feel similar and could be consolidated for brevity. For example, points related to optimizing performance (O(n) algorithms, avoiding deep nesting, minimizing copying) could perhaps be listed under a single performance guideline with sub-bullets.
+
+7. **Link to Best Practices**:
+   - Adding links to external resources for standards, libraries, or design patterns (e.g., links to the official docs for Pydantic, SQLAlchemy, etc.) can provide direct access to more in-depth information.
+
+8. **Code Examples**:
+   - Similar to providing examples for logging, introducing examples under "Code Efficiency" and "Code Maintainability" can provide practical context. For instance, how to effectively implement a caching mechanism with `functools.lru_cache()`.
+
+9. **Performance Tools**:
+   - Consider adding a section about profiling tools or methodologies to measure performance as code changes are made. Suggest tools like `cProfile`, `line_profiler`, or `memory_profiler`.
+
+10. **Testing Best Practices**:
+    - You mention using `pytest`, but expanding this section with best practices regarding test organization, naming conventions for tests, and mocking strategies can enhance test writing guidance.
+
+11. **Versioning Awareness**:
+    - Ensure any endpoints for library versions include what features or changes are significant in version upgrades. This can include noting breaking changes or deprecated features that may require attention upon upgrading.
+
+### Conclusion:
+
+Overall, the rewritten system instructions are significantly more structured and clearer than the original block format. Implementing the suggestions above can further enhance the clarity and utility of the guidelines. This will make it easier for both new and experienced developers to understand the recommended practices and standards during their code review processes.
 

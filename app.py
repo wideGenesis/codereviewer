@@ -48,5 +48,5 @@ def run_github_code_reviewer():
 
 
 if __name__ == '__main__':
-    # run_local_code_reviewer()
+    run_local_code_reviewer()
     run_github_code_reviewer()
